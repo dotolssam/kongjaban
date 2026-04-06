@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>초등 영단어 올인원 챌린지</title>
     <style>
-        :root { --primary: #6c5ce7; --bg: #f9f9fb; --accent: #ff7675; --correct: #27ae60; --wrong: #e74c3c; --memory: #00b894; --study: #0984e3; --balloon: #fdcb6e; --rank: #636e72; }
+        :root { --primary: #6c5ce7; --bg: #f9f9fb; --accent: #ff7675; --correct: #27ae60; --wrong: #e74c3c; --memory: #00b894; --study: #0984e3; --balloon: #fdcb6e; --rank: #636e72; --spelling: #e84393; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
         #game-box { background: white; width: 95%; max-width: 650px; padding: 2rem; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; position: relative; z-index: 10; }
         
@@ -17,34 +17,36 @@
         .btn-study { background: var(--study); }
         .btn-memory { background: var(--memory); }
         .btn-balloon { background: var(--balloon); color: #333; }
+        .btn-spelling { background: var(--spelling); }
         .btn-survival { background: var(--primary); }
         .btn-rank { background: var(--rank); flex: 0.7; }
         .mode-btn:hover { opacity: 0.8; transform: translateY(-2px); }
 
         .hidden { display: none; }
 
-        /* 풍선 게임 */
+        /* 스펠링 게임 스타일 */
+        #spelling-display { font-size: 2.5rem; letter-spacing: 10px; margin: 20px 0; font-weight: bold; color: var(--primary); }
+        #flower-pot { font-size: 4rem; margin: 10px; transition: 0.3s; }
+        .keyboard { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 20px; }
+        .key { padding: 10px 5px; background: #eee; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .key:disabled { background: #ccc; cursor: default; opacity: 0.5; }
+
+        /* 공통 스타일 */
+        .btn-main { margin-top: 20px; width: 100%; padding: 15px; background: #636e72; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
         #balloon-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #e0f7fa; z-index: 100; display: none; overflow: hidden; }
         .balloon { position: absolute; width: 110px; height: 130px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; cursor: pointer; box-shadow: inset -10px -10px 15px rgba(0,0,0,0.1); text-align: center; padding: 10px; font-size: 1.1rem; }
         #balloon-target { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: white; padding: 15px 50px; border-radius: 50px; font-size: 1.8rem; font-weight: 900; border: 5px solid var(--balloon); box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 110; }
-        #balloon-stats { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 1.5rem; font-weight: bold; z-index: 110; }
-
-        /* 카드 학습 */
+        
+        /* 카드/메모리 스타일 생략(기존동일) */
         .flash-card { width: 280px; height: 180px; margin: 20px auto; perspective: 1000px; cursor: pointer; }
         .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
         .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; border-radius: 20px; border: 3px solid var(--study); background: white; font-size: 2.2rem; font-weight: bold; }
         .card-back { background: #f0f7ff; transform: rotateY(180deg); color: var(--study); }
-
-        /* 메모리 게임 */
         .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
         .memory-card { height: 90px; background: var(--memory); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 0.9rem; font-weight: bold; padding: 5px; text-align: center; }
         .memory-card.flipped { background: white; color: #333; border: 2px solid var(--memory); }
         .memory-card.matched { visibility: hidden; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
-        .btn-main { margin-top: 20px; width: 100%; padding: 15px; background: #636e72; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
         .opt-btn { padding: 15px; border-radius: 12px; border: 1px solid #ddd; background: white; font-size: 1.2rem; cursor: pointer; width: 100%; margin-top: 5px;}
     </style>
 </head>
@@ -55,6 +57,15 @@
         <h1 style="color: var(--primary);">영단어 마스터 🚀</h1>
         <input type="text" id="user-name" placeholder="이름을 입력하세요" style="width:80%; padding:15px; margin-bottom:15px; border-radius:12px; border:2px solid #ddd; text-align:center; font-size:1.1rem;">
         <div class="chapter-list" id="chapter-grid"></div>
+    </div>
+
+    <div id="spelling-screen" class="hidden">
+        <h2 style="color: var(--spelling);">꽃 피우기 철자 챌린지 🌸</h2>
+        <div id="flower-pot">🌸🌸🌸🌸🌸🌸</div>
+        <p id="spelling-hint" style="font-size:1.2rem; font-weight:bold; color:#555;"></p>
+        <div id="spelling-display">_ _ _ _</div>
+        <div class="keyboard" id="keyboard"></div>
+        <button onclick="location.reload()" class="btn-main">그만하기</button>
     </div>
 
     <div id="study-screen" class="hidden">
@@ -149,130 +160,164 @@
     let score = 0;
     let userName = "";
 
-    // [카드 학습 함수 등록]
-    let studyIdx = 0;
-    window.startStudy = (chNum) => {
-        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum); studyIdx = 0;
+    // [스펠링 게임 로직]
+    let targetWord = "";
+    let guessedLetters = [];
+    let wrongCount = 0;
+    window.startSpelling = (chNum) => {
+        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
         document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('study-screen').classList.remove('hidden');
+        document.getElementById('spelling-screen').classList.remove('hidden');
+        newSpellingWord();
+    };
+
+    function newSpellingWord() {
+        const item = currentChapterWords[Math.floor(Math.random() * currentChapterWords.length)];
+        targetWord = item.eng.toLowerCase().replace(/[^a-z]/g, ""); // 기호 제외
+        document.getElementById('spelling-hint').innerText = "뜻: " + item.kor;
+        guessedLetters = [];
+        wrongCount = 0;
+        updateSpellingUI();
+        createKeyboard();
+    }
+
+    function updateSpellingUI() {
+        let display = "";
+        let allMatched = true;
+        for (let char of targetWord) {
+            if (guessedLetters.includes(char)) display += char + " ";
+            else { display += "_ "; allMatched = false; }
+        }
+        document.getElementById('spelling-display').innerText = display;
+        document.getElementById('flower-pot').innerText = "🌸".repeat(6 - wrongCount) + "🥀".repeat(wrongCount);
+        
+        if (allMatched) {
+            setTimeout(() => { alert("정답입니다! 꽃이 활짝 피었어요! 🌸"); score += 15; newSpellingWord(); }, 200);
+        } else if (wrongCount >= 6) {
+            setTimeout(() => { alert("아쉬워요! 정답은 " + targetWord + " 였습니다."); newSpellingWord(); }, 200);
+        }
+    }
+
+    function createKeyboard() {
+        const kb = document.getElementById('keyboard'); kb.innerHTML = "";
+        "abcdefghijklmnopqrstuvwxyz".split("").forEach(l => {
+            const btn = document.createElement('button'); btn.className = 'key'; btn.innerText = l;
+            btn.onclick = () => {
+                btn.disabled = true;
+                if (targetWord.includes(l)) guessedLetters.push(l);
+                else wrongCount++;
+                updateSpellingUI();
+            };
+            kb.appendChild(btn);
+        });
+    }
+
+    // [기존 함수들 윈도우 등록]
+    window.startStudy = (chNum) => {
+        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum); let studyIdx = 0;
+        document.getElementById('start-screen').classList.add('hidden'); document.getElementById('study-screen').classList.remove('hidden');
+        window.updateStudyCard = () => {
+            const word = currentChapterWords[studyIdx];
+            document.getElementById('study-eng').innerText = word.eng; document.getElementById('study-kor').innerText = word.kor;
+            document.getElementById('card-counter').innerText = `${studyIdx + 1} / ${currentChapterWords.length}`;
+            document.querySelector('.card-inner').classList.remove('is-flipped');
+        };
+        window.nextCard = () => { if(studyIdx < currentChapterWords.length - 1) { studyIdx++; window.updateStudyCard(); } };
+        window.prevCard = () => { if(studyIdx > 0) { studyIdx--; window.updateStudyCard(); } };
         window.updateStudyCard();
     };
-    window.updateStudyCard = () => {
-        const word = currentChapterWords[studyIdx];
-        document.getElementById('study-eng').innerText = word.eng;
-        document.getElementById('study-kor').innerText = word.kor;
-        document.getElementById('card-counter').innerText = `${studyIdx + 1} / ${currentChapterWords.length}`;
-        document.querySelector('.card-inner').classList.remove('is-flipped');
-    };
-    window.nextCard = () => { if(studyIdx < currentChapterWords.length - 1) { studyIdx++; window.updateStudyCard(); } };
-    window.prevCard = () => { if(studyIdx > 0) { studyIdx--; window.updateStudyCard(); } };
 
-    // [메모리 게임 함수 등록]
-    let firstCard = null, secondCard = null, lockBoard = false, matchesFound = 0;
     window.startMemory = (chNum) => {
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
         let cards = []; currentChapterWords.forEach(w => { cards.push({ t: w.eng, id: w.eng }); cards.push({ t: w.kor, id: w.eng }); });
         cards.sort(() => Math.random() - 0.5);
-        const grid = document.getElementById('memory-grid'); grid.innerHTML = ""; matchesFound = 0;
-        document.getElementById('memory-info').innerText = `남은 짝: 10개`;
+        const grid = document.getElementById('memory-grid'); grid.innerHTML = ""; let first = null, lock = false, matches = 0;
         cards.forEach(card => {
             const el = document.createElement('div'); el.className = 'memory-card'; el.innerText = "?";
             el.onclick = () => {
-                if(lockBoard || el === firstCard || el.classList.contains('matched')) return;
+                if(lock || el.classList.contains('matched') || el === first) return;
                 el.innerText = card.t; el.classList.add('flipped');
-                if(!firstCard) { firstCard = el; firstCard.dataset.id = card.id; return; }
-                secondCard = el; secondCard.dataset.id = card.id; lockBoard = true;
-                if(firstCard.dataset.id === secondCard.dataset.id) {
-                    matchesFound++; firstCard.classList.add('matched'); secondCard.classList.add('matched'); 
-                    document.getElementById('memory-info').innerText = `남은 짝: ${10-matchesFound}개`;
-                    [firstCard, secondCard, lockBoard] = [null, null, false];
-                    if(matchesFound === 10) setTimeout(() => alert("참 잘했어요!"), 300);
-                } else {
-                    setTimeout(() => { firstCard.innerText="?"; secondCard.innerText="?"; firstCard.classList.remove('flipped'); secondCard.classList.remove('flipped'); [firstCard, secondCard, lockBoard] = [null, null, false]; }, 800);
+                if(!first) { first = el; return; }
+                lock = true;
+                if(first.innerText === card.t || (first.innerText === card.id || el.innerText === card.id)) { // 간단 짝 로직
+                    if( (first.innerText === card.eng && el.innerText === card.kor) || (first.innerText === card.kor && el.innerText === card.eng) ) {
+                        first.classList.add('matched'); el.classList.add('matched'); matches++; 
+                        document.getElementById('memory-info').innerText = `남은 짝: ${10-matches}개`;
+                        first = null; lock = false; if(matches === 10) alert("성공!");
+                        return;
+                    }
                 }
+                setTimeout(() => { first.innerText="?"; el.innerText="?"; first.classList.remove('flipped'); el.classList.remove('flipped'); first=null; lock=false; }, 700);
             };
             grid.appendChild(el);
         });
         document.getElementById('start-screen').classList.add('hidden'); document.getElementById('memory-screen').classList.remove('hidden');
     };
 
-    // [풍선 게임 함수 등록]
-    let bScore = 0, bLife = 3, bTarget = "", bInterval;
     window.startBalloonGame = (chNum) => {
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
         document.getElementById('balloon-area').style.display = 'block';
-        bScore = 0; bLife = 3; window.updateBInfo(); window.setBTarget();
-        if(bInterval) clearInterval(bInterval);
-        bInterval = setInterval(createB, 1000);
+        let bScore = 0, bLife = 3, bTarget = "";
+        const updateBInfo = () => { document.getElementById('balloon-score').innerText=`점수: ${bScore}`; document.getElementById('balloon-life').innerText="❤️".repeat(bLife); };
+        const setBTarget = () => { bTarget=currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)].kor; document.getElementById('balloon-target').innerText=bTarget; };
+        setBTarget(); updateBInfo();
+        const bInterval = setInterval(() => {
+            if(bLife <= 0) { clearInterval(bInterval); return; }
+            const b = document.createElement('div'); const w = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
+            b.className='balloon'; b.innerText=w.eng; b.style.left=Math.random()*(window.innerWidth-120)+'px'; b.style.top=window.innerHeight+'px';
+            b.style.backgroundColor=`hsl(${Math.random()*360},70%,60%)`;
+            b.onclick=()=>{ if(w.kor===bTarget){ bScore+=10; b.remove(); setBTarget(); } else { bLife--; b.remove(); } updateBInfo(); };
+            document.getElementById('balloon-area').appendChild(b);
+            let pos=window.innerHeight; const move=setInterval(()=>{
+                pos-=(4 + bScore/100); b.style.top=pos+'px';
+                if(pos<-150){ clearInterval(move); if(w.kor===bTarget && b.parentNode){ bLife--; updateBInfo(); setBTarget(); } if(b.parentNode) b.remove(); }
+                if(bLife<=0){ clearInterval(move); alert("게임 종료!"); location.reload(); }
+            },16);
+        }, 1000);
     };
-    function createB() {
-        if(bLife <= 0) return;
-        const b = document.createElement('div'); const w = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
-        b.className='balloon'; b.innerText=w.eng; b.style.left=Math.random()*(window.innerWidth-120)+'px'; b.style.top=window.innerHeight+'px';
-        b.style.backgroundColor=`hsl(${Math.random()*360},70%,60%)`;
-        b.onclick=()=>{
-            if(w.kor===bTarget){ bScore+=10; b.remove(); window.setBTarget(); }
-            else { bLife--; b.style.background="black"; setTimeout(()=>b.remove(),200); }
-            window.updateBInfo();
-        };
-        document.getElementById('balloon-area').appendChild(b);
-        let pos=window.innerHeight, speed=5.5+(bScore/80);
-        const move=setInterval(()=>{
-            pos-=speed; b.style.top=pos+'px';
-            if(pos<-150){ 
-                clearInterval(move); 
-                if(w.kor===bTarget && b.parentNode){ bLife--; window.updateBInfo(); window.setBTarget(); } 
-                if(b.parentNode) b.remove(); 
-            }
-            if(bLife<=0){ clearInterval(move); clearInterval(bInterval); alert("게임 종료!"); location.reload(); }
-        },16);
-    }
-    window.updateBInfo = () => { document.getElementById('balloon-score').innerText=`점수: ${bScore}`; document.getElementById('balloon-life').innerText="❤️".repeat(bLife); };
-    window.setBTarget = () => { bTarget=currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)].kor; document.getElementById('balloon-target').innerText=bTarget; };
 
-    // [서바이벌 도전 & 순위 함수 등록]
     window.selectChapter = (chNum) => {
-        userName = document.getElementById('user-name').value.trim(); if(!userName) return alert("이름을 입력해주세요!");
+        userName = document.getElementById('user-name').value.trim(); if(!userName) return alert("이름 입력!");
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
         document.getElementById('start-screen').classList.add('hidden'); document.getElementById('quiz-screen').classList.remove('hidden');
         let timeLeft = 120; score = 0;
         const tInt = setInterval(() => {
             timeLeft--; document.getElementById('timer-text').innerText=timeLeft+"초";
             document.getElementById('timer-progress').style.width=(timeLeft/120*100)+"%";
-            if(timeLeft<=0){ clearInterval(tInt); window.finishGame(); }
+            if(timeLeft<=0){ clearInterval(tInt); finishGame(); }
         }, 1000);
-        window.renderQuiz();
-    };
-    window.renderQuiz = () => {
-        const item = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
-        document.getElementById('question').innerText = item.eng;
-        let choices = [item.kor]; while(choices.length<4){ let r=allWords[Math.floor(Math.random()*allWords.length)].kor; if(!choices.includes(r)) choices.push(r); }
-        const grid = document.getElementById('options-grid'); grid.innerHTML = "";
-        choices.sort(()=>Math.random()-0.5).forEach(c => {
-            const b = document.createElement('button'); b.className='opt-btn'; b.innerText=c;
-            b.onclick=()=>{ if(c===item.kor){ score+=10; document.getElementById('score-text').innerText="점수: "+score; window.renderQuiz(); } else { alert("오답입니다!"); window.renderQuiz(); } };
-            grid.appendChild(b);
-        });
-    };
-    window.finishGame = async () => {
-        document.getElementById('quiz-screen').classList.add('hidden'); document.getElementById('result-screen').classList.remove('hidden');
-        document.getElementById('final-score-text').innerText = `${userName}님: ${score}점`;
-        try {
+        const renderQuiz = () => {
+            const item = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
+            document.getElementById('question').innerText = item.eng;
+            let choices = [item.kor]; while(choices.length<4){ let r=allWords[Math.floor(Math.random()*allWords.length)].kor; if(!choices.includes(r)) choices.push(r); }
+            const grid = document.getElementById('options-grid'); grid.innerHTML = "";
+            choices.sort(()=>Math.random()-0.5).forEach(c => {
+                const b = document.createElement('button'); b.className='opt-btn'; b.innerText=c;
+                b.onclick=()=>{ if(c===item.kor){ score+=10; document.getElementById('score-text').innerText="점수: "+score; renderQuiz(); } else { alert("오답!"); renderQuiz(); } };
+                grid.appendChild(b);
+            });
+        };
+        const finishGame = async () => {
+            document.getElementById('quiz-screen').classList.add('hidden'); document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('final-score-text').innerText = `${userName}님: ${score}점`;
             await addDoc(collection(db, "rankings"), { name: userName, score: score, chapter: selectedCh, time: new Date() });
             window.loadRanking(selectedCh);
-        } catch(e) { console.error("Error adding document: ", e); }
+        };
+        renderQuiz();
     };
-    window.viewRankingOnly = (chNum) => {
+
+    window.viewRankingOnly = async (chNum) => {
         selectedCh = chNum; document.getElementById('start-screen').classList.add('hidden'); document.getElementById('result-screen').classList.remove('hidden');
-        document.getElementById('result-title').innerText = `${chNum}단원 순위표`; window.loadRanking(chNum);
+        document.getElementById('result-title').innerText = `${chNum}단원 순위`;
+        window.loadRanking(chNum);
     };
+
     window.loadRanking = async (chNum) => {
         const q = query(collection(db, "rankings"), where("chapter", "==", chNum), orderBy("score", "desc"), limit(10));
         const snap = await getDocs(q); const body = document.getElementById('rank-body'); body.innerHTML = "";
         let r=1; snap.forEach(d => { body.innerHTML += `<tr><td>${r++}</td><td>${d.data().name}</td><td>${d.data().score}</td></tr>`; });
     };
 
-    // [메인 리스트 생성]
     document.addEventListener('DOMContentLoaded', () => {
         const grid = document.getElementById('chapter-grid');
         for(let i=1; i<=20; i++) {
@@ -281,6 +326,7 @@
                 <button onclick="window.startStudy(${i})" class="mode-btn btn-study">학습</button>
                 <button onclick="window.startMemory(${i})" class="mode-btn btn-memory">메모리</button>
                 <button onclick="window.startBalloonGame(${i})" class="mode-btn btn-balloon">풍선</button>
+                <button onclick="window.startSpelling(${i})" class="mode-btn btn-spelling">철자</button>
                 <button onclick="window.selectChapter(${i})" class="mode-btn btn-survival">도전</button>
                 <button onclick="window.viewRankingOnly(${i})" class="mode-btn btn-rank">🏆 순위</button>`;
             grid.appendChild(row);
