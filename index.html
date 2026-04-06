@@ -224,7 +224,7 @@
             document.getElementById('study-eng').innerText = word.eng; document.getElementById('study-kor').innerText = word.kor;
             document.getElementById('card-counter').innerText = `${studyIdx + 1} / ${currentChapterWords.length}`;
             document.querySelector('.card-inner').classList.remove('is-flipped');
-//아랫줄 추가했음
+
 window.speakWord();
         };
         window.nextCard = () => { if(studyIdx < currentChapterWords.length - 1) { studyIdx++; window.updateStudyCard(); } };
