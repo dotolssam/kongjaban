@@ -3,135 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>초등 영단어 올인원 챌린지</title>
+    <title>Voca Master Pro</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css">
     <style>
-        :root { --primary: #6c5ce7; --bg: #f9f9fb; --accent: #ff7675; --correct: #27ae60; --wrong: #e74c3c; --memory: #00b894; --study: #0984e3; --balloon: #fdcb6e; --rank: #636e72; --spelling: #e84393; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
-        #game-box { background: white; width: 95%; max-width: 650px; padding: 2rem; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; position: relative; z-index: 10; }
-        
-        .chapter-list { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px; max-height: 500px; overflow-y: auto; padding: 10px; }
-        .chapter-row { display: flex; gap: 6px; flex-wrap: wrap; background: #fff; border: 1px solid #eee; padding: 12px; border-radius: 15px; align-items: center; }
-        .chapter-info { flex: 1 1 100%; text-align: left; font-weight: bold; margin-bottom: 8px; color: #444; font-size: 1.1rem; border-bottom: 1px solid #f1f1f1; padding-bottom: 5px; }
-        
-        .mode-btn { flex: 1; min-width: 60px; padding: 12px 5px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; font-size: 0.85rem; transition: 0.2s; text-align: center; }
-        .btn-study { background: var(--study); }
-        .btn-memory { background: var(--memory); }
-        .btn-balloon { background: var(--balloon); color: #333; }
-        .btn-spelling { background: var(--spelling); }
-        .btn-survival { background: var(--primary); }
-        .btn-rank { background: var(--rank); flex: 0.7; }
-        .mode-btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        :root {
+            --ios-bg: #f2f2f7;
+            --ios-card: rgba(255, 255, 255, 0.85);
+            --ios-blue: #007aff;
+            --ios-green: #34c759;
+            --ios-pink: #ff2d55;
+            --ios-orange: #ff9500;
+            --ios-indigo: #5856d6;
+            --ios-text: #1c1c1e;
+            --ios-gray: #8e8e93;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+        }
 
-        .hidden { display: none; }
+        body {
+            font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+            background: linear-gradient(135deg, #d2d2d7 0%, #f5f5f7 100%);
+            color: var(--ios-text);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; overflow: hidden;
+        }
 
-        /* 스펠링 게임 스타일 */
-        #spelling-display { font-size: 2.5rem; letter-spacing: 10px; margin: 20px 0; font-weight: bold; color: var(--primary); }
-        #flower-pot { font-size: 4rem; margin: 10px; transition: 0.3s; }
-        .keyboard { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 20px; }
-        .key { padding: 10px 5px; background: #eee; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .key:disabled { background: #ccc; cursor: default; opacity: 0.5; }
+        #game-box {
+            background: var(--ios-card);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            width: 95%; max-width: 500px; height: 90vh;
+            padding: 25px 15px; border-radius: 40px;
+            box-shadow: var(--shadow); border: 1px solid rgba(255, 255, 255, 0.4);
+            display: flex; flex-direction: column; position: relative;
+        }
 
-        /* 공통 스타일 */
-        .btn-main { margin-top: 20px; width: 100%; padding: 15px; background: #636e72; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
-        #balloon-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #e0f7fa; z-index: 100; display: none; overflow: hidden; }
-        .balloon { position: absolute; width: 110px; height: 130px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; cursor: pointer; box-shadow: inset -10px -10px 15px rgba(0,0,0,0.1); text-align: center; padding: 10px; font-size: 1.1rem; }
-        #balloon-target { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: white; padding: 15px 50px; border-radius: 50px; font-size: 1.8rem; font-weight: 900; border: 5px solid var(--balloon); box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 110; }
+        h1 { font-size: 28px; font-weight: 800; margin: 0 0 15px 10px; letter-spacing: -1px; }
+
+        #user-name {
+            width: 90%; padding: 15px; border-radius: 14px; border: none;
+            background: rgba(0, 0, 0, 0.05); font-size: 16px; margin: 0 auto 20px;
+            display: block; outline: none;
+        }
+
+        /* 단원 리스트 스타일 */
+        .chapter-list { flex: 1; overflow-y: auto; padding: 0 5px; }
+        .chapter-list::-webkit-scrollbar { width: 0px; }
+
+        .chapter-row {
+            background: white; margin-bottom: 12px; padding: 15px;
+            border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .chapter-info { font-size: 16px; font-weight: 700; color: var(--ios-text); }
+
+        /* 버튼 레이아웃 - 촘촘하게 */
+        .btn-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+
+        .mode-btn {
+            padding: 10px 2px; border-radius: 10px; border: none;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: 0.15s;
+        }
+        .mode-btn:active { transform: scale(0.94); opacity: 0.7; }
+
+        .btn-study { background: #007aff15; color: var(--ios-blue); }
+        .btn-memory { background: #34c75915; color: var(--ios-green); }
+        .btn-balloon { background: #ff950015; color: var(--ios-orange); }
+        .btn-spelling { background: #ff2d5515; color: var(--ios-pink); }
+        .btn-survival { background: var(--ios-indigo); color: white; }
+        .btn-rank { background: #8e8e9315; color: var(--ios-gray); }
+
+        /* 공통 UI */
+        .hidden { display: none !important; }
+        .btn-main { background: var(--ios-text); color: white; padding: 16px; border-radius: 18px; border: none; font-weight: 700; font-size: 16px; cursor: pointer; width: 100%; margin-top: 10px; }
+
+        /* 순위 탭 */
+        .rank-tabs { display: flex; background: rgba(0,0,0,0.06); padding: 4px; border-radius: 12px; margin-bottom: 15px; }
+        .rank-tab { flex: 1; padding: 8px; border: none; border-radius: 9px; font-size: 13px; font-weight: 600; background: transparent; color: var(--ios-gray); cursor: pointer; }
+        .rank-tab.active { background: white; color: var(--ios-text); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
         
-        .flash-card { width: 280px; height: 180px; margin: 20px auto; perspective: 1000px; cursor: pointer; }
-        .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
-        .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; border-radius: 20px; border: 3px solid var(--study); background: white; font-size: 2.2rem; font-weight: bold; }
-        .card-back { background: #f0f7ff; transform: rotateY(180deg); color: var(--study); }
-        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-        .memory-card { height: 90px; background: var(--memory); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 0.9rem; font-weight: bold; padding: 5px; text-align: center; overflow: hidden; }
-        .memory-card.flipped { background: white; color: #333; border: 2px solid var(--memory); }
+        /* 퀴즈/메모리 스타일 */
+        .opt-btn { background: white; border: 1px solid #eee; padding: 15px; border-radius: 15px; font-size: 17px; font-weight: 600; margin-bottom: 8px; cursor: pointer; width: 100%; }
+        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .memory-card { height: 70px; background: var(--ios-green); border-radius: 12px; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; padding: 2px; text-align: center; overflow: hidden;}
+        .memory-card.flipped { background: white; color: black; border: 2px solid var(--ios-green); }
         .memory-card.matched { visibility: hidden; }
-        .opt-btn { padding: 15px; border-radius: 12px; border: 1px solid #ddd; background: white; font-size: 1.2rem; cursor: pointer; width: 100%; margin-top: 5px;}
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
 
-        /* 순위 탭 스타일 */
-        .rank-tabs { display: flex; gap: 5px; margin-bottom: 15px; margin-top: 10px; }
-        .rank-tab { flex: 1; padding: 12px 5px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: #eee; font-size: 0.85rem; transition: 0.2s; }
-        .rank-tab.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3); }
+        /* 풍선 게임 */
+        #balloon-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #eef9ff; z-index: 1000; display: none; }
+        .balloon { position: absolute; width: 80px; height: 100px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; text-align: center; padding: 5px; font-size: 13px; }
     </style>
 </head>
 <body>
 
 <div id="game-box">
-    <div id="start-screen">
-        <h1 style="color: var(--primary);">영단어 마스터 🚀</h1>
-        <input type="text" id="user-name" placeholder="이름을 입력하세요" style="width:80%; padding:15px; margin-bottom:15px; border-radius:12px; border:2px solid #ddd; text-align:center; font-size:1.1rem;">
+    <div id="start-screen" style="display: flex; flex-direction: column; height: 100%;">
+        <h1>Voca Master 🚀</h1>
+        <input type="text" id="user-name" placeholder="사용자 이름 입력">
         <div class="chapter-list" id="chapter-grid"></div>
     </div>
 
-    <div id="result-screen" class="hidden">
-        <h2 id="result-title">순위표 🏆</h2>
+    <div id="result-screen" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
+        <h2 id="result-title" style="margin-bottom:10px;">Ranking</h2>
         <div class="rank-tabs">
             <button class="rank-tab" id="tab-rankings">도전</button>
             <button class="rank-tab" id="tab-spelling">철자</button>
             <button class="rank-tab" id="tab-memory">메모리</button>
         </div>
-        <p id="final-score-text" style="font-weight:bold; color:var(--primary); margin: 10px 0;"></p>
-        <div style="background:#f8f9fa; padding:15px; border-radius:15px; max-height: 300px; overflow-y: auto;">
-            <table>
-                <thead><tr><th>순위</th><th>이름</th><th>점수</th></tr></thead>
-                <tbody id="rank-body"></tbody>
-            </table>
+        <div style="flex: 1; overflow-y: auto; background: white; border-radius: 20px; padding: 10px;">
+            <table style="width:100%; border-spacing:0;"><tbody id="rank-body"></tbody></table>
         </div>
-        <button onclick="location.reload()" class="btn-main">메인으로</button>
-    </div>
-
-    <div id="spelling-screen" class="hidden">
-        <h2 style="color: var(--spelling);">꽃 피우기 철자 챌린지 🌸</h2>
-        <div id="flower-pot">🌸🌸🌸🌸🌸🌸</div>
-        <p id="spelling-hint" style="font-size:1.2rem; font-weight:bold; color:#555;"></p>
-        <div id="spelling-display">_ _ _ _</div>
-        <div class="keyboard" id="keyboard"></div>
-        <button onclick="location.reload()" class="btn-main">그만하기</button>
+        <button onclick="location.reload()" class="btn-main">홈으로</button>
     </div>
 
     <div id="study-screen" class="hidden">
-        <h2 style="color: var(--study);">단어 카드 학습</h2>
-        <div id="card-counter">1 / 10</div>
-        <button onclick="window.speakWord()" style="background:none; border:none; font-size:2rem; cursor:pointer; margin-bottom:10px;">🔊</button>
-        <div class="flash-card" onclick="this.querySelector('.card-inner').classList.toggle('is-flipped')">
-            <div class="card-inner">
-                <div class="card-face card-front" id="study-eng">Word</div>
-                <div class="card-face card-back" id="study-kor">뜻</div>
-            </div>
+        <h2 style="color: var(--ios-blue);">Card Study</h2>
+        <div id="card-counter" style="text-align:right; font-weight:600; color:var(--ios-gray);">1 / 10</div>
+        <div style="height: 250px; background: white; border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 20px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer;" onclick="toggleCard(this)">
+            <div id="study-eng" style="font-size: 36px; font-weight: 800;">Word</div>
+            <div id="study-kor" class="hidden" style="font-size: 24px; color: var(--ios-blue); margin-top:10px;">뜻</div>
         </div>
-        <div style="display:flex; gap:10px; justify-content: center;">
-            <button id="prev-btn" class="mode-btn btn-study" style="flex:none; width:100px;">이전</button>
-            <button id="next-btn" class="mode-btn btn-study" style="flex:none; width:100px;">다음</button>
+        <div style="display:flex; gap:10px;">
+            <button onclick="prevCard()" class="btn-main" style="background:#eee; color:black;">이전</button>
+            <button onclick="nextCard()" class="btn-main">다음</button>
         </div>
-        <button onclick="location.reload()" class="btn-main">그만하기</button>
+        <button onclick="location.reload()" class="btn-main" style="background:none; color:var(--ios-gray);">종료</button>
+    </div>
+
+    <div id="spelling-screen" class="hidden">
+        <h2 style="color: var(--ios-pink);">Spelling Bee</h2>
+        <div id="flower-pot" style="font-size: 30px; text-align:center; margin: 15px 0;">🌸🌸🌸🌸🌸🌸</div>
+        <p id="spelling-hint" style="text-align:center; font-weight:600; color:var(--ios-gray);"></p>
+        <div id="spelling-display" style="font-size: 32px; font-weight: 800; text-align:center; letter-spacing: 4px; margin: 20px 0;">_ _ _</div>
+        <div id="keyboard" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;"></div>
+        <button onclick="location.reload()" class="btn-main" style="background:none; color:var(--ios-gray);">그만하기</button>
     </div>
 
     <div id="memory-screen" class="hidden">
-        <h2 style="color: var(--memory);">짝 맞추기 게임</h2>
-        <div id="memory-info" style="font-weight:bold; margin-bottom:10px;">남은 짝: 10개</div>
-        <div class="memory-grid" id="memory-grid"></div>
-        <button onclick="location.reload()" class="btn-main">그만하기</button>
+        <h2 style="color: var(--ios-green);">Memory Match</h2>
+        <p id="memory-info" style="font-weight:600; color:var(--ios-gray); text-align:right;">남은 짝: 10</p>
+        <div id="memory-grid" class="memory-grid"></div>
+        <button onclick="location.reload()" class="btn-main" style="background:none; color:var(--ios-gray);">그만하기</button>
     </div>
 
     <div id="quiz-screen" class="hidden">
-        <div style="width:100%; height:10px; background:#eee; border-radius:5px; margin-bottom:10px; overflow:hidden;"><div id="timer-progress" style="width:100%; height:100%; background:var(--accent); transition: linear;"></div></div>
-        <div style="display:flex; justify-content: space-between; font-weight:bold;"><span id="timer-text">120초</span><span id="score-text">점수: 0</span></div>
-        <div id="question" style="font-size:2.5rem; font-weight:800; min-height:120px; display:flex; justify-content:center; align-items:center;">준비...</div>
-        <div id="options-grid" style="display:grid; gap:10px;"></div>
-        <button onclick="location.reload()" class="btn-main">그만하기</button>
+        <div id="timer-bar" style="width:100%; height:6px; background:#eee; border-radius:3px; margin-bottom:15px; overflow:hidden;"><div id="timer-progress" style="width:100%; height:100%; background:var(--ios-pink); transition: linear;"></div></div>
+        <div style="display:flex; justify-content: space-between; font-weight:bold; margin-bottom:20px;"><span id="timer-text">120초</span><span id="score-text">0점</span></div>
+        <div id="question" style="font-size:32px; font-weight:800; text-align:center; min-height:100px; display:flex; align-items:center; justify-content:center;">Ready?</div>
+        <div id="options-grid"></div>
     </div>
 </div>
 
 <div id="balloon-area">
-    <div id="balloon-stats" style="position:absolute; top:20px; left:20px; font-weight:bold; font-size:1.2rem; color: #333; z-index: 130;">
-        <div id="balloon-score">점수: 0</div>
-        <div id="balloon-life">❤️❤️❤️</div>
+    <div style="padding: 20px; font-weight: bold; display: flex; justify-content: space-between;">
+        <span id="balloon-score">Score: 0</span>
+        <span id="balloon-target" style="background:white; padding:5px 15px; border-radius:20px; border:2px solid var(--ios-orange);">Target</span>
+        <button onclick="location.reload()" style="border:none; background:none; font-size:20px;">✖️</button>
     </div>
-    <div id="balloon-target">대상 단어</div>
-    <button onclick="location.reload()" style="position:absolute; bottom:20px; right:20px; padding:10px 20px; background:#636e72; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; z-index:150;">종료</button>
 </div>
 
 <script type="module">
@@ -144,8 +172,7 @@
         projectId: "english-word-studying",
         storageBucket: "english-word-studying.firebasestorage.app",
         messagingSenderId: "929690063833",
-        appId: "1:929690063833:web:70b91512f3b6b427697fc8",
-        measurementId: "G-VVQRFKEG4Q"
+        appId: "1:929690063833:web:70b91512f3b6b427697fc8"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -153,310 +180,180 @@
 
     const allWords = [
         { eng: "a/an", kor: "하나의", ch: 1 }, { eng: "about", kor: "~에 대해", ch: 1 }, { eng: "above", kor: "~보다 위에", ch: 1 }, { eng: "able", kor: "~할 수 있는", ch: 1 }, { eng: "accident", kor: "사고, 우연", ch: 1 }, { eng: "act", kor: "행동하다", ch: 1 }, { eng: "add", kor: "더하다, 추가하다", ch: 1 }, { eng: "address", kor: "주소", ch: 1 }, { eng: "adult", kor: "성인, 어른", ch: 1 }, { eng: "adventure", kor: "모험", ch: 1 },
-        { eng: "advertise", kor: "광고하다", ch: 2 }, { eng: "advise", kor: "조언하다", ch: 2 }, { eng: "afraid", kor: "두려워하는, 겁내는", ch: 2 }, { eng: "after", kor: "~후에", ch: 2 }, { eng: "afternoon", kor: "오후", ch: 2 }, { eng: "again", kor: "다시", ch: 2 }, { eng: "against", kor: "~에 반대하여", ch: 2 }, { eng: "age", kor: "나이, 연령", ch: 2 }, { eng: "ago", kor: "~전에", ch: 2 }, { eng: "agree", kor: "동의하다", ch: 2 },
-        { eng: "ahead", kor: "앞으로, 앞에", ch: 3 }, { eng: "aim", kor: "목적, 목표", ch: 3 }, { eng: "airline", kor: "항공사", ch: 3 }, { eng: "airplane", kor: "비행기", ch: 3 }, { eng: "airport", kor: "공항", ch: 3 }, { eng: "album", kor: "사진첩", ch: 3 }, { eng: "alive", kor: "살아있는", ch: 3 }, { eng: "all", kor: "모든", ch: 3 }, { eng: "allow", kor: "허락하다", ch: 3 }, { eng: "almost", kor: "거의", ch: 3 },
-        { eng: "alone", kor: "혼자, 외로운", ch: 4 }, { eng: "along", kor: "~을 따라", ch: 4 }, { eng: "aloud", kor: "소리내어, 큰소리로", ch: 4 }, { eng: "already", kor: "이미, 벌써", ch: 4 }, { eng: "alright", kor: "괜찮은, 좋아", ch: 4 }, { eng: "also", kor: "또한", ch: 4 }, { eng: "although", kor: "비록 ~이긴 하지만", ch: 4 }, { eng: "always", kor: "항상", ch: 4 }, { eng: "amaze", kor: "놀라게 하다", ch: 4 }, { eng: "amount", kor: "양, 액수", ch: 4 },
-        { eng: "amuse", kor: "즐겁게하다", ch: 5 }, { eng: "and", kor: "그리고", ch: 5 }, { eng: "angel", kor: "천사", ch: 5 }, { eng: "anger", kor: "화, 분노", ch: 5 }, { eng: "animal", kor: "동물", ch: 5 }, { eng: "anniversary", kor: "기념일", ch: 5 }, { eng: "another", kor: "또 다른", ch: 5 }, { eng: "answer", kor: "답하다", ch: 5 }, { eng: "any", kor: "어떤, 어느", ch: 5 }, { eng: "apartment", kor: "아파트", ch: 5 },
-        { eng: "apology", kor: "사과", ch: 6 }, { eng: "appear", kor: "나타나다", ch: 6 }, { eng: "apple", kor: "사과", ch: 6 }, { eng: "appreciate", kor: "고마워하다", ch: 6 }, { eng: "approach", kor: "다가가가다, 접근", ch: 6 }, { eng: "architect", kor: "건축가", ch: 6 }, { eng: "area", kor: "지역, 구역", ch: 6 }, { eng: "arm", kor: "팔", ch: 6 }, { eng: "around", kor: "주변에", ch: 6 }, { eng: "arrive", kor: "도착하다", ch: 6 },
-        { eng: "arrow", kor: "화살, 화살표", ch: 7 }, { eng: "art", kor: "미술, 예술", ch: 7 }, { eng: "article", kor: "기사, 글", ch: 7 }, { eng: "as", kor: "~처럼", ch: 7 }, { eng: "ask", kor: "묻다", ch: 7 }, { eng: "asleep", kor: "잠이 든", ch: 7 }, { eng: "at", kor: "~에서", ch: 7 }, { eng: "attack", kor: "공격하다", ch: 7 }, { eng: "attention", kor: "주의, 주목", ch: 7 }, { eng: "audience", kor: "청중, 시청자", ch: 7 },
-        { eng: "aunt", kor: "고모, 이모", ch: 8 }, { eng: "automatic", kor: "자동의", ch: 8 }, { eng: "autumn", kor: "가을", ch: 8 }, { eng: "avail", kor: "도움이 되다", ch: 8 }, { eng: "average", kor: "평균의", ch: 8 }, { eng: "awake", kor: "깨어있는", ch: 8 }, { eng: "award", kor: "상, 수여하다", ch: 8 }, { eng: "away", kor: "떨어져", ch: 8 }, { eng: "baby", kor: "아기", ch: 8 }, { eng: "back", kor: "뒤쪽, 등", ch: 8 },
-        { eng: "background", kor: "배경", ch: 9 }, { eng: "bad", kor: "나쁜", ch: 9 }, { eng: "badminton", kor: "배드민턴", ch: 9 }, { eng: "bag", kor: "가방", ch: 9 }, { eng: "bake", kor: "굽다", ch: 9 }, { eng: "balance", kor: "균형", ch: 9 }, { eng: "ball", kor: "공", ch: 9 }, { eng: "balloon", kor: "풍선", ch: 9 }, { eng: "banana", kor: "바나나", ch: 9 }, { eng: "bank", kor: "은행", ch: 9 },
-        { eng: "base", kor: "기초, 아랫부분", ch: 10 }, { eng: "baseball", kor: "야구", ch: 10 }, { eng: "basket", kor: "바구니", ch: 10 }, { eng: "basketball", kor: "농구", ch: 10 }, { eng: "bat", kor: "박쥐, 방망이", ch: 10 }, { eng: "bath", kor: "목욕, 욕조", ch: 10 }, { eng: "be", kor: "있다, 존재하다", ch: 10 }, { eng: "beach", kor: "해변", ch: 10 }, { eng: "bear", kor: "곰", ch: 10 }, { eng: "beauty", kor: "아름다움", ch: 10 },
-        { eng: "beautiful", kor: "아름다운", ch: 11 }, { eng: "because", kor: "~때문에", ch: 11 }, { eng: "become", kor: "~이 되다", ch: 11 }, { eng: "bed", kor: "침대", ch: 11 }, { eng: "bee", kor: "벌", ch: 11 }, { eng: "beef", kor: "소고기", ch: 11 }, { eng: "before", kor: "~전에", ch: 11 }, { eng: "beg", kor: "간청하다", ch: 11 }, { eng: "begin", kor: "시작하다", ch: 11 }, { eng: "behave", kor: "행동하다", ch: 11 },
-        { eng: "behind", kor: "~뒤에", ch: 12 }, { eng: "believe", kor: "믿다", ch: 12 }, { eng: "bell", kor: "종, 벨", ch: 12 }, { eng: "below", kor: "~아래에", ch: 12 }, { eng: "belt", kor: "벨트, 허리띠", ch: 12 }, { eng: "bench", kor: "벤치", ch: 12 }, { eng: "beside", kor: "~옆에", ch: 12 }, { eng: "between", kor: "~사이에", ch: 12 }, { eng: "beyond", kor: "~너머", ch: 12 }, { eng: "big", kor: "큰", ch: 12 },
-        { eng: "bike", kor: "자전거", ch: 13 }, { eng: "bill", kor: "청구서, 지폐", ch: 13 }, { eng: "billion", kor: "10억", ch: 13 }, { eng: "bird", kor: "새", ch: 13 }, { eng: "birth", kor: "탄생, 출생", ch: 13 }, { eng: "biscuit", kor: "비스킷", ch: 13 }, { eng: "bite", kor: "물다", ch: 13 }, { eng: "bitter", kor: "쓴 맛", ch: 13 }, { eng: "black", kor: "검은색", ch: 13 }, { eng: "blank", kor: "빈칸, 여백", ch: 13 },
-        { eng: "blanket", kor: "담요", ch: 14 }, { eng: "block", kor: "덩어리, 막다", ch: 14 }, { eng: "blood", kor: "피, 혈액", ch: 14 }, { eng: "blow", kor: "불다", ch: 14 }, { eng: "blue", kor: "파란색", ch: 14 }, { eng: "board", kor: "판자, 탑승하다", ch: 14 }, { eng: "boat", kor: "배, 보트", ch: 14 }, { eng: "body", kor: "몸, 신체", ch: 14 }, { eng: "bone", kor: "뼈", ch: 14 }, { eng: "book", kor: "책", ch: 14 },
-        { eng: "borrow", kor: "빌리다", ch: 15 }, { eng: "both", kor: "둘 다", ch: 15 }, { eng: "bottle", kor: "병", ch: 15 }, { eng: "bottom", kor: "아래, 바닥", ch: 15 }, { eng: "box", kor: "상자", ch: 15 }, { eng: "boy", kor: "남자아이", ch: 15 }, { eng: "brain", kor: "뇌", ch: 15 }, { eng: "branch", kor: "나뭇가지", ch: 15 }, { eng: "bread", kor: "빵", ch: 15 }, { eng: "break", kor: "깨지다, 고장나다", ch: 15 },
-        { eng: "breakfast", kor: "아침식사", ch: 16 }, { eng: "breath", kor: "숨, 호흡", ch: 16 }, { eng: "breathe", kor: "숨을 쉬다", ch: 16 }, { eng: "bridge", kor: "다리", ch: 16 }, { eng: "brief", kor: "짧은, 요약", ch: 16 }, { eng: "bright", kor: "밝은", ch: 16 }, { eng: "bring", kor: "가져오다", ch: 16 }, { eng: "brother", kor: "남동생, 형", ch: 16 }, { eng: "brown", kor: "갈색", ch: 16 }, { eng: "brush", kor: "솔, 붓", ch: 16 },
-        { eng: "build", kor: "짓다, 건설하다", ch: 17 }, { eng: "burn", kor: "타다, 화상", ch: 17 }, { eng: "bus", kor: "버스", ch: 17 }, { eng: "bush", kor: "덤불", ch: 17 }, { eng: "business", kor: "사업, 업무", ch: 17 }, { eng: "busy", kor: "바쁜", ch: 17 }, { eng: "but", kor: "그러나", ch: 17 }, { eng: "butter", kor: "버터", ch: 17 }, { eng: "button", kor: "단추", ch: 17 }, { eng: "buy", kor: "사다", ch: 17 },
-        { eng: "by", kor: "~옆에, ~에 의해", ch: 18 }, { eng: "cake", kor: "케이크", ch: 18 }, { eng: "calculate", kor: "계산하다", ch: 18 }, { eng: "calendar", kor: "달력", ch: 18 }, { eng: "call", kor: "부르다, 전화", ch: 18 }, { eng: "calm", kor: "침착한", ch: 18 }, { eng: "camera", kor: "카메라", ch: 18 }, { eng: "camp", kor: "야영하다", ch: 18 }, { eng: "campaign", kor: "캠페인", ch: 18 }, { eng: "cancel", kor: "취소하다", ch: 18 },
-        { eng: "candy", kor: "사탕", ch: 19 }, { eng: "cap", kor: "모자", ch: 19 }, { eng: "card", kor: "카드", ch: 19 }, { eng: "care", kor: "보살핌", ch: 19 }, { eng: "career", kor: "직업, 경력", ch: 19 }, { eng: "chicken", kor: "닭고기", ch: 19 }, { eng: "child", kor: "어린이", ch: 19 }, { eng: "cheap", kor: "값이 싼", ch: 19 }, { eng: "chocolate", kor: "초콜릿", ch: 19 }, { eng: "choice", kor: "선택", ch: 19 },
-        { eng: "choose", kor: "선택하다", ch: 20 }, { eng: "church", kor: "교회", ch: 20 }, { eng: "cinema", kor: "영화관", ch: 20 }, { eng: "circle", kor: "원, 동그라미", ch: 20 }, { eng: "city", kor: "도시", ch: 20 }, { eng: "class", kor: "수업, 학급", ch: 20 }, { eng: "classic", kor: "고전적인", ch: 20 }, { eng: "clean", kor: "깨끗한", ch: 20 }, { eng: "clear", kor: "분명한, 확실한", ch: 20 }, { eng: "clever", kor: "영리한", ch: 20 }
+        { eng: "advertise", kor: "광고하다", ch: 2 }, { eng: "advise", kor: "조언하다", ch: 2 }, { eng: "afraid", kor: "두려워하는, 겁내는", ch: 2 }, { eng: "after", kor: "~후에", ch: 2 }, { eng: "afternoon", kor: "오후", ch: 2 }, { eng: "again", kor: "다시", ch: 2 }, { eng: "against", kor: "~에 반대하여", ch: 2 }, { eng: "age", kor: "나이, 연령", ch: 2 }, { eng: "ago", kor: "~전에", ch: 2 }, { eng: "agree", kor: "동의하다", ch: 2 }
+        // (필요시 단어 데이터를 추가하세요)
     ];
 
-    let currentChapterWords = [];
-    let selectedCh = 0;
-    let score = 0;
+    let selectedCh = 1;
     let userName = "";
+    let currentChapterWords = [];
 
-    // ------------------------------------------
-    // [1] 순위 보기 탭 기능 (중요: 클릭 이벤트 연결)
-    // ------------------------------------------
-// 1. 순위 보기 함수 (컬렉션 이름을 인자로 받음)
-window.viewRankingOnly = async (chNum, collName = "rankings") => {
-    selectedCh = chNum; // 현재 선택된 단원 저장
-    
-    // UI 전환: 모든 화면 숨기고 결과창만 표시
-    document.querySelectorAll('#game-box > div').forEach(div => div.classList.add('hidden'));
-    document.getElementById('result-screen').classList.remove('hidden');
-    
-    // 탭 활성화 상태 변경 (색상 변경)
-    document.querySelectorAll('.rank-tab').forEach(t => t.classList.remove('active'));
-    if(collName === 'rankings') document.getElementById('tab-rankings').classList.add('active');
-    if(collName === 'rankings_spelling') document.getElementById('tab-spelling').classList.add('active');
-    if(collName === 'rankings_memory') document.getElementById('tab-memory').classList.add('active');
-
-    // 제목 업데이트
-    const titleMap = {
-        'rankings': `🔥 ${chNum}단원 도전 순위`,
-        'rankings_spelling': `🌸 ${chNum}단원 철자왕 순위`,
-        'rankings_memory': `🧩 ${chNum}단원 메모리왕 순위`
-    };
-    document.getElementById('result-title').innerText = titleMap[collName];
-    
-    // 실제 데이터 로드 실행
-    window.loadRanking(chNum, collName);
-};
-
-// 2. 탭 버튼 클릭 이벤트 바인딩 (함수가 정의된 후 하단에 배치)
-document.getElementById('tab-rankings').onclick = () => window.viewRankingOnly(selectedCh, 'rankings');
-document.getElementById('tab-spelling').onclick = () => window.viewRankingOnly(selectedCh, 'rankings_spelling');
-document.getElementById('tab-memory').onclick = () => window.viewRankingOnly(selectedCh, 'rankings_memory');
-
-// 3. 데이터 불러오기 로직 (orderBy와 limit 포함)
-window.loadRanking = async (chNum, collName) => {
-    const body = document.getElementById('rank-body'); 
-    body.innerHTML = "<tr><td colspan='3'>불러오는 중...</td></tr>";
-
-    try {
-        // Firebase에서 해당 컬렉션의 데이터를 점수 내림차순으로 가져옴
-        const q = query(
-            collection(db, collName), 
-            where("chapter", "==", chNum), 
-            orderBy("score", "desc"), 
-            limit(10)
-        );
+    // --- [ 공통: 순위 시스템 ] ---
+    window.viewRankingOnly = async (chNum, collName = "rankings") => {
+        selectedCh = chNum;
+        document.querySelectorAll('#game-box > div').forEach(div => div.classList.add('hidden'));
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.querySelectorAll('.rank-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(`tab-${collName.split('_')[1] || 'rankings'}`).classList.add('active');
         
-        const snap = await getDocs(q); 
+        const body = document.getElementById('rank-body');
+        body.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:20px;'>Loading...</td></tr>";
+
+        const q = query(collection(db, collName), where("chapter", "==", chNum), orderBy("score", "desc"), limit(10));
+        const snap = await getDocs(q);
         body.innerHTML = "";
-        let r = 1; 
-        
-        if (snap.empty) {
-            body.innerHTML = "<tr><td colspan='3' style='padding:20px;'>아직 데이터가 없습니다.</td></tr>";
-            return;
-        }
-
-        snap.forEach(d => { 
-            const data = d.data();
-            body.innerHTML += `<tr><td>${r++}</td><td>${data.name}</td><td>${data.score}</td></tr>`; 
+        let r = 1;
+        if(snap.empty) { body.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:#aaa;'>No Data</td></tr>"; return; }
+        snap.forEach(doc => {
+            const d = doc.data();
+            body.innerHTML += `<tr><td style="padding:12px; font-weight:800; color:var(--ios-blue);">${r++}</td><td style="font-weight:600;">${d.name}</td><td style="text-align:right; color:var(--ios-gray);">${d.score}</td></tr>`;
         });
-    } catch (e) {
-        console.error("Error loading rankings:", e);
-        body.innerHTML = "<tr><td colspan='3'>데이터를 불러올 수 없습니다.</td></tr>";
-    }
-};
+    };
 
-    // 탭 버튼에 이벤트 직접 할당
     document.getElementById('tab-rankings').onclick = () => window.viewRankingOnly(selectedCh, 'rankings');
     document.getElementById('tab-spelling').onclick = () => window.viewRankingOnly(selectedCh, 'rankings_spelling');
     document.getElementById('tab-memory').onclick = () => window.viewRankingOnly(selectedCh, 'rankings_memory');
 
+    // --- [1. 카드 학습 ] ---
+    let studyIdx = 0;
+    window.startStudy = (chNum) => {
+        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum); studyIdx = 0;
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('study-screen').classList.remove('hidden');
+        showCard();
+    };
+    window.toggleCard = (el) => { el.querySelector('#study-kor').classList.toggle('hidden'); };
+    window.showCard = () => {
+        document.getElementById('study-eng').innerText = currentChapterWords[studyIdx].eng;
+        document.getElementById('study-kor').innerText = currentChapterWords[studyIdx].kor;
+        document.getElementById('study-kor').classList.add('hidden');
+        document.getElementById('card-counter').innerText = `${studyIdx+1} / ${currentChapterWords.length}`;
+    };
+    window.nextCard = () => { if(studyIdx < currentChapterWords.length-1) { studyIdx++; showCard(); } };
+    window.prevCard = () => { if(studyIdx > 0) { studyIdx--; showCard(); } };
 
-    // ------------------------------------------
-    // [2] 철자 게임 (꽃 피우기 10문제)
-    // ------------------------------------------
-    let targetWord = "", guessedLetters = [], wrongCount = 0;
-    let spellingSolvedCount = 0, spellingTotalScore = 0, spellingStartTime = 0;
-
+    // --- [2. 철자 게임 ] ---
+    let targetWord = "", guessed = [], wrong = 0, solved = 0, spellingScore = 0;
     window.startSpelling = (chNum) => {
-        userName = document.getElementById('user-name').value.trim();
-        if(!userName) return alert("이름을 입력하세요!");
+        userName = document.getElementById('user-name').value.trim() || "Guest";
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
-        spellingSolvedCount = 0; spellingTotalScore = 0; spellingStartTime = Date.now();
+        solved = 0; spellingScore = 0;
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('spelling-screen').classList.remove('hidden');
-        newSpellingWord();
+        nextSpelling();
     };
-
-    function newSpellingWord() {
-        if (spellingSolvedCount >= 10) { finishSpellingGame(); return; }
-        const item = currentChapterWords[Math.floor(Math.random() * currentChapterWords.length)];
-        targetWord = item.eng.toLowerCase().replace(/[^a-z]/g, ""); 
-        document.getElementById('spelling-hint').innerText = `(${spellingSolvedCount + 1}/10) 뜻: ${item.kor}`;
-        guessedLetters = []; wrongCount = 0;
-        updateSpellingUI(); createKeyboard();
+    function nextSpelling() {
+        if(solved >= 5) { saveScore("rankings_spelling", spellingScore); return; }
+        const item = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
+        targetWord = item.eng.toLowerCase().replace(/[^a-z]/g, "");
+        guessed = []; wrong = 0;
+        document.getElementById('spelling-hint').innerText = `뜻: ${item.kor}`;
+        updateSpellingUI(); renderKeyboard();
     }
-
     function updateSpellingUI() {
-        let display = ""; let allMatched = true;
-        for (let char of targetWord) {
-            if (guessedLetters.includes(char)) display += char + " ";
-            else { display += "_ "; allMatched = false; }
-        }
-        document.getElementById('spelling-display').innerText = display;
-        document.getElementById('flower-pot').innerText = "🌸".repeat(6 - wrongCount) + "🥀".repeat(wrongCount);
-        if (allMatched) {
-            spellingTotalScore += (10 + (6 - wrongCount) * 5); spellingSolvedCount++;
-            setTimeout(() => { alert("정답!"); newSpellingWord(); }, 200);
-        } else if (wrongCount >= 6) {
-            spellingSolvedCount++;
-            setTimeout(() => { alert("아쉬워요! 정답은 [" + targetWord + "]"); newSpellingWord(); }, 200);
-        }
+        let disp = ""; let win = true;
+        for(let l of targetWord) { if(guessed.includes(l)) disp += l + " "; else { disp += "_ "; win = false; } }
+        document.getElementById('spelling-display').innerText = disp;
+        document.getElementById('flower-pot').innerText = "🌸".repeat(6-wrong) + "🥀".repeat(wrong);
+        if(win) { spellingScore += (100 - wrong*10); solved++; setTimeout(nextSpelling, 600); }
+        else if(wrong >= 6) { solved++; setTimeout(nextSpelling, 600); }
     }
-
-    async function finishSpellingGame() {
-        const timeTaken = Math.floor((Date.now() - spellingStartTime) / 1000);
-        const finalScore = spellingTotalScore + Math.max(0, 300 - timeTaken);
-        await addDoc(collection(db, "rankings_spelling"), { name: userName, score: finalScore, chapter: selectedCh, time: new Date() });
-        window.viewRankingOnly(selectedCh, "rankings_spelling");
-    }
-
-    function createKeyboard() {
+    function renderKeyboard() {
         const kb = document.getElementById('keyboard'); kb.innerHTML = "";
         "abcdefghijklmnopqrstuvwxyz".split("").forEach(l => {
-            const btn = document.createElement('button'); btn.className = 'key'; btn.innerText = l;
-            btn.onclick = () => {
-                btn.disabled = true;
-                if (targetWord.includes(l)) guessedLetters.push(l); else wrongCount++;
-                updateSpellingUI();
-            };
-            kb.appendChild(btn);
+            const b = document.createElement('button'); b.innerText = l; b.style = "padding:10px 0; background:white; border-radius:8px; border:none; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:pointer;";
+            b.onclick = () => { b.disabled = true; b.style.opacity = 0.3; if(targetWord.includes(l)) guessed.push(l); else wrong++; updateSpellingUI(); };
+            kb.appendChild(b);
         });
     }
 
-    // ------------------------------------------
-    // [3] 메모리 게임 (기존 기능 유지 + 점수 저장)
-    // ------------------------------------------
+    // --- [3. 메모리 게임 ] ---
     window.startMemory = (chNum) => {
-        userName = document.getElementById('user-name').value.trim();
-        if(!userName) return alert("이름 입력!");
+        userName = document.getElementById('user-name').value.trim() || "Guest";
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
-        const startTime = Date.now();
-        let cards = [];
-        currentChapterWords.forEach(w => { cards.push({t: w.eng, id: w.eng}); cards.push({t: w.kor, id: w.eng}); });
-        cards.sort(() => Math.random() - 0.5);
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('memory-screen').classList.remove('hidden');
+        let cards = []; currentChapterWords.forEach(w => { cards.push({t:w.eng, id:w.eng}); cards.push({t:w.kor, id:w.eng}); });
+        cards.sort(() => Math.random()-0.5);
         const grid = document.getElementById('memory-grid'); grid.innerHTML = "";
         let first = null, lock = false, matches = 0;
-        document.getElementById('memory-info').innerText = "남은 짝: 10개";
         cards.forEach(c => {
             const el = document.createElement('div'); el.className = 'memory-card'; el.innerText = "?";
             el.onclick = () => {
                 if(lock || el.classList.contains('matched') || el === first) return;
                 el.innerText = c.t; el.classList.add('flipped');
-                if(!first){ first = el; return; }
+                if(!first) { first = el; return; }
                 lock = true;
-                if(first.innerText === c.t || (allWords.find(w=>w.eng===first.innerText && w.kor===c.t)) || (allWords.find(w=>w.kor===first.innerText && w.eng===c.t))) {
-                    // 실제 데이터 ID 비교 로직 (c.id 이용)
-                }
-                // 간편 비교 (id 기반)
-                const firstId = cards.find(card => card.t === first.innerText)?.id;
-                if(firstId === c.id) {
-                    setTimeout(async () => {
-                        first.classList.add('matched'); el.classList.add('matched');
-                        matches++; document.getElementById('memory-info').innerText = `남은 짝: ${10-matches}개`;
-                        first = null; lock = false;
-                        if(matches === 10) {
-                            const score = Math.max(0, 1200 - Math.floor((Date.now()-startTime)/1000));
-                            await addDoc(collection(db, "rankings_memory"), { name: userName, score: score, chapter: selectedCh, time: new Date() });
-                            window.viewRankingOnly(selectedCh, "rankings_memory");
-                        }
-                    }, 500);
+                const firstData = cards.find(x => x.t === first.innerText);
+                if(firstData.id === c.id && first.innerText !== el.innerText) {
+                    setTimeout(() => { first.classList.add('matched'); el.classList.add('matched'); matches++; first=null; lock=false; if(matches===10) saveScore("rankings_memory", 1000); }, 500);
                 } else {
                     setTimeout(() => { first.innerText="?"; el.innerText="?"; first.classList.remove('flipped'); el.classList.remove('flipped'); first=null; lock=false; }, 800);
                 }
             };
             grid.appendChild(el);
         });
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('memory-screen').classList.remove('hidden');
     };
 
-    // ------------------------------------------
-    // [4] 단어 학습 및 발음 (🔊 추가됨)
-    // ------------------------------------------
-    let studyIdx = 0;
-    window.startStudy = (chNum) => {
-        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum); studyIdx = 0;
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('study-screen').classList.remove('hidden');
-        updateCard();
-    };
-    function updateCard() {
-        const w = currentChapterWords[studyIdx];
-        document.getElementById('study-eng').innerText = w.eng;
-        document.getElementById('study-kor').innerText = w.kor;
-        document.getElementById('card-counter').innerText = `${studyIdx+1} / ${currentChapterWords.length}`;
-        document.querySelector('.card-inner').classList.remove('is-flipped');
-        window.speakWord();
-    }
-    document.getElementById('next-btn').onclick = () => { if(studyIdx < currentChapterWords.length-1){ studyIdx++; updateCard(); } };
-    document.getElementById('prev-btn').onclick = () => { if(studyIdx > 0){ studyIdx--; updateCard(); } };
-
-    window.speakWord = () => {
-        const text = document.getElementById('study-eng').innerText.replace(/\//g, ", ");
-        const ut = new SpeechSynthesisUtterance(text);
-        ut.lang = 'en-US'; ut.rate = 0.8;
-        window.speechSynthesis.speak(ut);
-    };
-
-    // ------------------------------------------
-    // [5] 풍선 게임 (기존 로직 유지)
-    // ------------------------------------------
-    window.startBalloonGame = (chNum) => {
+    // --- [4. 풍선 게임 ] ---
+    window.startBalloon = (chNum) => {
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
         document.getElementById('balloon-area').style.display = 'block';
-        let bScore = 0, bLife = 3, bTarget = "";
-        const updateBInfo = () => { document.getElementById('balloon-score').innerText=`점수: ${bScore}`; document.getElementById('balloon-life').innerText="❤️".repeat(bLife); };
-        const setBTarget = () => { bTarget=currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)].kor; document.getElementById('balloon-target').innerText=bTarget; };
-        setBTarget(); updateBInfo();
-        const bInterval = setInterval(() => {
-            if(bLife <= 0) { clearInterval(bInterval); return; }
+        let bScore = 0, bTarget = "";
+        const setTarget = () => { bTarget = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)]; document.getElementById('balloon-target').innerText = bTarget.kor; };
+        setTarget();
+        const gameInt = setInterval(() => {
             const b = document.createElement('div'); const w = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
-            b.className='balloon'; b.innerText=w.eng; b.style.left=Math.random()*(window.innerWidth-120)+'px'; b.style.top=window.innerHeight+'px';
-            b.style.backgroundColor=`hsl(${Math.random()*360},70%,60%)`;
-            b.onclick=()=>{ if(w.kor===bTarget){ bScore+=10; b.remove(); setBTarget(); } else { bLife--; b.remove(); } updateBInfo(); };
+            b.className = 'balloon'; b.innerText = w.eng; b.style.left = Math.random()*80+'%'; b.style.top = '100%';
+            b.style.backgroundColor = `hsl(${Math.random()*360}, 70%, 60%)`;
+            b.onclick = () => { if(w.eng === bTarget.eng) { bScore += 10; setTarget(); } b.remove(); document.getElementById('balloon-score').innerText = "Score: " + bScore; };
             document.getElementById('balloon-area').appendChild(b);
-            let pos=window.innerHeight; const move=setInterval(()=>{
-                pos-=(4 + bScore/100); b.style.top=pos+'px';
-                if(pos<-150){ clearInterval(move); if(w.kor===bTarget && b.parentNode){ bLife--; updateBInfo(); setBTarget(); } if(b.parentNode) b.remove(); }
-                if(bLife<=0){ clearInterval(move); alert("게임 종료!"); location.reload(); }
-            },16);
-        }, 1000);
+            let pos = 100; const move = setInterval(() => { pos -= 0.5; b.style.top = pos + '%'; if(pos < -10) { clearInterval(move); b.remove(); } }, 20);
+        }, 1500);
     };
 
-    // ------------------------------------------
-    // [6] 도전 서바이벌
-    // ------------------------------------------
-    window.selectChapter = (chNum) => {
-        userName = document.getElementById('user-name').value.trim(); if(!userName) return alert("이름 입력!");
+    // --- [5. 2분 도전 ] ---
+    window.startSurvival = (chNum) => {
+        userName = document.getElementById('user-name').value.trim() || "Guest";
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
-        document.getElementById('start-screen').classList.add('hidden'); document.getElementById('quiz-screen').classList.remove('hidden');
-        let timeLeft = 120, quizScore = 0;
-        const tInt = setInterval(() => {
-            timeLeft--; document.getElementById('timer-text').innerText=timeLeft+"초";
-            document.getElementById('timer-progress').style.width=(timeLeft/120*100)+"%";
-            if(timeLeft<=0){ clearInterval(tInt); finish(); }
-        }, 1000);
-        const render = () => {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        let timeLeft = 120, qScore = 0;
+        const timer = setInterval(() => { timeLeft--; document.getElementById('timer-text').innerText = timeLeft+"s"; document.getElementById('timer-progress').style.width = (timeLeft/120*100) + "%"; if(timeLeft<=0) { clearInterval(timer); saveScore("rankings", qScore); } }, 1000);
+        const nextQ = () => {
             const item = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
             document.getElementById('question').innerText = item.eng;
-            let choices = [item.kor]; while(choices.length<4){ let r=allWords[Math.floor(Math.random()*allWords.length)].kor; if(!choices.includes(r)) choices.push(r); }
-            const grid = document.getElementById('options-grid'); grid.innerHTML = "";
-            choices.sort(()=>Math.random()-0.5).forEach(c => {
-                const b = document.createElement('button'); b.className='opt-btn'; b.innerText=c;
-                b.onclick=()=>{ if(c===item.kor){ quizScore+=10; document.getElementById('score-text').innerText="점수: "+quizScore; render(); } else { alert("오답!"); render(); } };
-                grid.appendChild(b);
+            let opts = [item.kor]; while(opts.length<4) { let r = allWords[Math.floor(Math.random()*allWords.length)].kor; if(!opts.includes(r)) opts.push(r); }
+            const oGrid = document.getElementById('options-grid'); oGrid.innerHTML = "";
+            opts.sort(()=>Math.random()-0.5).forEach(o => {
+                const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = o;
+                b.onclick = () => { if(o === item.kor) qScore += 10; else qScore -= 5; document.getElementById('score-text').innerText = qScore+"pt"; nextQ(); };
+                oGrid.appendChild(b);
             });
         };
-        const finish = async () => {
-            await addDoc(collection(db, "rankings"), { name: userName, score: quizScore, chapter: selectedCh, time: new Date() });
-            window.viewRankingOnly(selectedCh, "rankings");
-        };
-        render();
+        nextQ();
     };
 
-    // 초기 화면 생성
+    async function saveScore(coll, score) {
+        await addDoc(collection(db, coll), { name: userName, score: score, chapter: selectedCh, time: new Date() });
+        window.viewRankingOnly(selectedCh, coll);
+    }
+
+    // 초기 화면 단원 생성
     document.addEventListener('DOMContentLoaded', () => {
         const grid = document.getElementById('chapter-grid');
         for(let i=1; i<=20; i++) {
             const row = document.createElement('div'); row.className = 'chapter-row';
-            row.innerHTML = `<div class="chapter-info">${i}단원 영단어</div>
-                <button onclick="window.startStudy(${i})" class="mode-btn btn-study">학습</button>
-                <button onclick="window.startMemory(${i})" class="mode-btn btn-memory">메모리</button>
-                <button onclick="window.startBalloonGame(${i})" class="mode-btn btn-balloon">풍선</button>
-                <button onclick="window.startSpelling(${i})" class="mode-btn btn-spelling">철자</button>
-                <button onclick="window.selectChapter(${i})" class="mode-btn btn-survival">도전</button>
-                <button onclick="window.viewRankingOnly(${i}, 'rankings')" class="mode-btn btn-rank">🏆 순위</button>`;
+            row.innerHTML = `
+                <div class="chapter-info">Unit ${i}</div>
+                <div class="btn-group">
+                    <button onclick="window.startStudy(${i})" class="mode-btn btn-study">학습</button>
+                    <button onclick="window.startMemory(${i})" class="mode-btn btn-memory">메모리</button>
+                    <button onclick="window.startBalloon(${i})" class="mode-btn btn-balloon">풍선</button>
+                    <button onclick="window.startSpelling(${i})" class="mode-btn btn-spelling">철자</button>
+                    <button onclick="window.startSurvival(${i})" class="mode-btn btn-survival">도전</button>
+                    <button onclick="window.viewRankingOnly(${i}, 'rankings')" class="mode-btn btn-rank">🏆</button>
+                </div>`;
             grid.appendChild(row);
         }
     });
