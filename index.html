@@ -45,7 +45,7 @@
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
         .btn-main { margin-top: 20px; width: 100%; padding: 15px; background: #636e72; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
-        .opt-btn { padding: 15px; border-radius: 12px; border: 1px solid #ddd; background: white; font-size: 1.2rem; cursor: pointer; width: 100%; }
+        .opt-btn { padding: 15px; border-radius: 12px; border: 1px solid #ddd; background: white; font-size: 1.2rem; cursor: pointer; width: 100%; margin-top: 5px;}
     </style>
 </head>
 <body>
@@ -67,8 +67,8 @@
             </div>
         </div>
         <div style="display:flex; gap:10px; justify-content: center;">
-            <button onclick="prevCard()" class="mode-btn btn-study" style="flex:none; width:100px;">이전</button>
-            <button onclick="nextCard()" class="mode-btn btn-study" style="flex:none; width:100px;">다음</button>
+            <button onclick="window.prevCard()" class="mode-btn btn-study" style="flex:none; width:100px;">이전</button>
+            <button onclick="window.nextCard()" class="mode-btn btn-study" style="flex:none; width:100px;">다음</button>
         </div>
         <button onclick="location.reload()" class="btn-main">그만하기</button>
     </div>
@@ -85,7 +85,7 @@
         <div style="display:flex; justify-content: space-between; font-weight:bold;"><span id="timer-text">120초</span><span id="score-text">점수: 0</span></div>
         <div id="question" style="font-size:2.5rem; font-weight:800; min-height:120px; display:flex; justify-content:center; align-items:center;">준비...</div>
         <div id="options-grid" style="display:grid; gap:10px;"></div>
-        <div id="feedback" style="margin-top:15px; font-weight:bold;"></div>
+        <button onclick="location.reload()" class="btn-main">그만하기</button>
     </div>
 
     <div id="result-screen" class="hidden">
@@ -101,6 +101,7 @@
 <div id="balloon-area">
     <div id="balloon-stats"><div id="balloon-score">점수: 0</div><div id="balloon-life">❤️❤️❤️</div></div>
     <div id="balloon-target">대상 단어</div>
+    <button onclick="location.reload()" style="position:absolute; bottom:20px; right:20px; padding:10px 20px; background:#636e72; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; z-index:120;">종료</button>
 </div>
 
 <script type="module">
@@ -121,144 +122,26 @@
     const db = getFirestore(app);
 
     const allWords = [
-    { eng: "a/an", kor: "하나의", ch: 1 }, { eng: "about", kor: "~에 대해", ch: 1 },
-    { eng: "above", kor: "~보다 위에", ch: 1 }, { eng: "able", kor: "~할 수 있는", ch: 1 },
-    { eng: "accident", kor: "사고, 우연", ch: 1 }, { eng: "act", kor: "행동하다", ch: 1 },
-    { eng: "add", kor: "더하다, 추가하다", ch: 1 }, { eng: "address", kor: "주소", ch: 1 },
-    { eng: "adult", kor: "성인, 어른", ch: 1 }, { eng: "adventure", kor: "모험", ch: 1 },
-
-    /* 2단원 (11~20) */
-    { eng: "advertise", kor: "광고하다", ch: 2 }, { eng: "advise", kor: "조언하다", ch: 2 },
-    { eng: "afraid", kor: "두려워하는, 겁내는", ch: 2 }, { eng: "after", kor: "~후에", ch: 2 },
-    { eng: "afternoon", kor: "오후", ch: 2 }, { eng: "again", kor: "다시", ch: 2 },
-    { eng: "against", kor: "~에 반대하여", ch: 2 }, { eng: "age", kor: "나이, 연령", ch: 2 },
-    { eng: "ago", kor: "~전에", ch: 2 }, { eng: "agree", kor: "동의하다", ch: 2 },
-
-    /* 3단원 (21~30) */
-    { eng: "ahead", kor: "앞으로, 앞에", ch: 3 }, { eng: "aim", kor: "목적, 목표", ch: 3 },
-    { eng: "airline", kor: "항공사", ch: 3 }, { eng: "airplane", kor: "비행기", ch: 3 },
-    { eng: "airport", kor: "공항", ch: 3 }, { eng: "album", kor: "사진첩", ch: 3 },
-    { eng: "alive", kor: "살아있는", ch: 3 }, { eng: "all", kor: "모든", ch: 3 },
-    { eng: "allow", kor: "허락하다", ch: 3 }, { eng: "almost", kor: "거의", ch: 3 },
-
-    /* 4단원 (31~40) */
-    { eng: "alone", kor: "혼자, 외로운", ch: 4 }, { eng: "along", kor: "~을 따라", ch: 4 },
-    { eng: "aloud", kor: "소리내어, 큰소리로", ch: 4 }, { eng: "already", kor: "이미, 벌써", ch: 4 },
-    { eng: "alright", kor: "괜찮은, 좋아", ch: 4 }, { eng: "also", kor: "또한", ch: 4 },
-    { eng: "although", kor: "비록 ~이긴 하지만", ch: 4 }, { eng: "always", kor: "항상", ch: 4 },
-    { eng: "amaze", kor: "놀라게 하다", ch: 4 }, { eng: "amount", kor: "양, 액수", ch: 4 },
-
-    /* 5단원 (41~50) */
-    { eng: "amuse", kor: "즐겁게하다", ch: 5 }, { eng: "and", kor: "그리고", ch: 5 },
-    { eng: "angel", kor: "천사", ch: 5 }, { eng: "anger", kor: "화, 분노", ch: 5 },
-    { eng: "animal", kor: "동물", ch: 5 }, { eng: "anniversary", kor: "기념일", ch: 5 },
-    { eng: "another", kor: "또 다른", ch: 5 }, { eng: "answer", kor: "답하다", ch: 5 },
-    { eng: "any", kor: "어떤, 어느", ch: 5 }, { eng: "apartment", kor: "아파트", ch: 5 },
-
-    /* 6단원 (51~60) */
-    { eng: "apology", kor: "사과", ch: 6 }, { eng: "appear", kor: "나타나다", ch: 6 },
-    { eng: "apple", kor: "사과", ch: 6 }, { eng: "appreciate", kor: "고마워하다", ch: 6 },
-    { eng: "approach", kor: "다가가다, 접근", ch: 6 }, { eng: "architect", kor: "건축가", ch: 6 },
-    { eng: "area", kor: "지역, 구역", ch: 6 }, { eng: "arm", kor: "팔", ch: 6 },
-    { eng: "around", kor: "주변에", ch: 6 }, { eng: "arrive", kor: "도착하다", ch: 6 },
-
-    /* 7단원 (61~70) */
-    { eng: "arrow", kor: "화살, 화살표", ch: 7 }, { eng: "art", kor: "미술, 예술", ch: 7 },
-    { eng: "article", kor: "기사, 글", ch: 7 }, { eng: "as", kor: "~처럼", ch: 7 },
-    { eng: "ask", kor: "묻다", ch: 7 }, { eng: "asleep", kor: "잠이 든", ch: 7 },
-    { eng: "at", kor: "~에서", ch: 7 }, { eng: "attack", kor: "공격하다", ch: 7 },
-    { eng: "attention", kor: "주의, 주목", ch: 7 }, { eng: "audience", kor: "청중, 시청자", ch: 7 },
-
-    /* 8단원 (71~80) */
-    { eng: "aunt", kor: "고모, 이모", ch: 8 }, { eng: "automatic", kor: "자동의", ch: 8 },
-    { eng: "autumn", kor: "가을", ch: 8 }, { eng: "avail", kor: "도움이 되다", ch: 8 },
-    { eng: "average", kor: "평균의", ch: 8 }, { eng: "awake", kor: "깨어있는", ch: 8 },
-    { eng: "award", kor: "상, 수여하다", ch: 8 }, { eng: "away", kor: "떨어져", ch: 8 },
-    { eng: "baby", kor: "아기", ch: 8 }, { eng: "back", kor: "뒤쪽, 등", ch: 8 },
-
-    /* 9단원 (81~90) */
-    { eng: "background", kor: "배경", ch: 9 }, { eng: "bad", kor: "나쁜", ch: 9 },
-    { eng: "badminton", kor: "배드민턴", ch: 9 }, { eng: "bag", kor: "가방", ch: 9 },
-    { eng: "bake", kor: "굽다", ch: 9 }, { eng: "balance", kor: "균형", ch: 9 },
-    { eng: "ball", kor: "공", ch: 9 }, { eng: "balloon", kor: "풍선", ch: 9 },
-    { eng: "banana", kor: "바나나", ch: 9 }, { eng: "bank", kor: "은행", ch: 9 },
-
-    /* 10단원 (91~100) */
-    { eng: "base", kor: "기초, 아랫부분", ch: 10 }, { eng: "baseball", kor: "야구", ch: 10 },
-    { eng: "basket", kor: "바구니", ch: 10 }, { eng: "basketball", kor: "농구", ch: 10 },
-    { eng: "bat", kor: "박쥐, 방망이", ch: 10 }, { eng: "bath", kor: "목욕, 욕조", ch: 10 },
-    { eng: "be", kor: "있다, 존재하다", ch: 10 }, { eng: "beach", kor: "해변", ch: 10 },
-    { eng: "bear", kor: "곰", ch: 10 }, { eng: "beauty", kor: "아름다움", ch: 10 },
-
-    /* 11단원 (101~110) */
-    { eng: "beautiful", kor: "아름다운", ch: 11 }, { eng: "because", kor: "~때문에", ch: 11 },
-    { eng: "become", kor: "~이 되다", ch: 11 }, { eng: "bed", kor: "침대", ch: 11 },
-    { eng: "bee", kor: "벌", ch: 11 }, { eng: "beef", kor: "소고기", ch: 11 },
-    { eng: "before", kor: "~전에", ch: 11 }, { eng: "beg", kor: "간청하다", ch: 11 },
-    { eng: "begin", kor: "시작하다", ch: 11 }, { eng: "behave", kor: "행동하다", ch: 11 },
-
-    /* 12단원 (111~120) */
-    { eng: "behind", kor: "~뒤에", ch: 12 }, { eng: "believe", kor: "믿다", ch: 12 },
-    { eng: "bell", kor: "종, 벨", ch: 12 }, { eng: "below", kor: "~아래에", ch: 12 },
-    { eng: "belt", kor: "벨트, 허리띠", ch: 12 }, { eng: "bench", kor: "벤치", ch: 12 },
-    { eng: "beside", kor: "~옆에", ch: 12 }, { eng: "between", kor: "~사이에", ch: 12 },
-    { eng: "beyond", kor: "~너머", ch: 12 }, { eng: "big", kor: "큰", ch: 12 },
-
-    /* 13단원 (121~130) */
-    { eng: "bike", kor: "자전거", ch: 13 }, { eng: "bill", kor: "청구서, 지폐", ch: 13 },
-    { eng: "billion", kor: "10억", ch: 13 }, { eng: "bird", kor: "새", ch: 13 },
-    { eng: "birth", kor: "탄생, 출생", ch: 13 }, { eng: "biscuit", kor: "비스킷", ch: 13 },
-    { eng: "bite", kor: "물다", ch: 13 }, { eng: "bitter", kor: "쓴 맛", ch: 13 },
-    { eng: "black", kor: "검은색", ch: 13 }, { eng: "blank", kor: "빈칸, 여백", ch: 13 },
-
-    /* 14단원 (131~140) */
-    { eng: "blanket", kor: "담요", ch: 14 }, { eng: "block", kor: "덩어리, 막다", ch: 14 },
-    { eng: "blood", kor: "피, 혈액", ch: 14 }, { eng: "blow", kor: "불다", ch: 14 },
-    { eng: "blue", kor: "파란색", ch: 14 }, { eng: "board", kor: "판자, 탑승하다", ch: 14 },
-    { eng: "boat", kor: "배, 보트", ch: 14 }, { eng: "body", kor: "몸, 신체", ch: 14 },
-    { eng: "bone", kor: "뼈", ch: 14 }, { eng: "book", kor: "책", ch: 14 },
-
-    /* 15단원 (141~150) */
-    { eng: "borrow", kor: "빌리다", ch: 15 }, { eng: "both", kor: "둘 다", ch: 15 },
-    { eng: "bottle", kor: "병", ch: 15 }, { eng: "bottom", kor: "아래, 바닥", ch: 15 },
-    { eng: "box", kor: "상자", ch: 15 }, { eng: "boy", kor: "남자아이", ch: 15 },
-    { eng: "brain", kor: "뇌", ch: 15 }, { eng: "branch", kor: "나뭇가지", ch: 15 },
-    { eng: "bread", kor: "빵", ch: 15 }, { eng: "break", kor: "깨지다, 고장나다", ch: 15 },
-
-    /* 16단원 (151~160) */
-    { eng: "breakfast", kor: "아침식사", ch: 16 }, { eng: "breath", kor: "숨, 호흡", ch: 16 },
-    { eng: "breathe", kor: "숨을 쉬다", ch: 16 }, { eng: "bridge", kor: "다리", ch: 16 },
-    { eng: "brief", kor: "짧은, 요약", ch: 16 }, { eng: "bright", kor: "밝은", ch: 16 },
-    { eng: "bring", kor: "가져오다", ch: 16 }, { eng: "brother", kor: "남동생, 형", ch: 16 },
-    { eng: "brown", kor: "갈색", ch: 16 }, { eng: "brush", kor: "솔, 붓", ch: 16 },
-
-    /* 17단원 (161~170) */
-    { eng: "build", kor: "짓다, 건설하다", ch: 17 }, { eng: "burn", kor: "타다, 화상", ch: 17 },
-    { eng: "bus", kor: "버스", ch: 17 }, { eng: "bush", kor: "덤불", ch: 17 },
-    { eng: "business", kor: "사업, 업무", ch: 17 }, { eng: "busy", kor: "바쁜", ch: 17 },
-    { eng: "but", kor: "그러나", ch: 17 }, { eng: "butter", kor: "버터", ch: 17 },
-    { eng: "button", kor: "단추", ch: 17 }, { eng: "buy", kor: "사다", ch: 17 },
-
-    /* 18단원 (171~180) */
-    { eng: "by", kor: "~옆에, ~에 의해", ch: 18 }, { eng: "cake", kor: "케이크", ch: 18 },
-    { eng: "calculate", kor: "계산하다", ch: 18 }, { eng: "calendar", kor: "달력", ch: 18 },
-    { eng: "call", kor: "부르다, 전화", ch: 18 }, { eng: "calm", kor: "침착한", ch: 18 },
-    { eng: "camera", kor: "카메라", ch: 18 }, { eng: "camp", kor: "야영하다", ch: 18 },
-    { eng: "campaign", kor: "캠페인", ch: 18 }, { eng: "cancel", kor: "취소하다", ch: 18 },
-
-    /* 19단원 (181~190) */
-    { eng: "candy", kor: "사탕", ch: 19 }, { eng: "cap", kor: "모자", ch: 19 },
-    { eng: "card", kor: "카드", ch: 19 }, { eng: "care", kor: "보살핌", ch: 19 },
-    { eng: "career", kor: "직업, 경력", ch: 19 }, { eng: "chicken", kor: "닭고기", ch: 19 },
-    { eng: "child", kor: "어린이", ch: 19 }, { eng: "cheap", kor: "값이 싼", ch: 19 },
-    { eng: "chocolate", kor: "초콜릿", ch: 19 }, { eng: "choice", kor: "선택", ch: 19 },
-
-    /* 20단원 (191~200) */
-    { eng: "choose", kor: "선택하다", ch: 20 }, { eng: "church", kor: "교회", ch: 20 },
-    { eng: "cinema", kor: "영화관", ch: 20 }, { eng: "circle", kor: "원, 동그라미", ch: 20 },
-    { eng: "city", kor: "도시", ch: 20 }, { eng: "class", kor: "수업, 학급", ch: 20 },
-    { eng: "classic", kor: "고전적인", ch: 20 }, { eng: "clean", kor: "깨끗한", ch: 20 },
-    { eng: "clear", kor: "분명한, 확실한", ch: 20 }, { eng: "clever", kor: "영리한", ch: 20 }
+        { eng: "a/an", kor: "하나의", ch: 1 }, { eng: "about", kor: "~에 대해", ch: 1 }, { eng: "above", kor: "~보다 위에", ch: 1 }, { eng: "able", kor: "~할 수 있는", ch: 1 }, { eng: "accident", kor: "사고, 우연", ch: 1 }, { eng: "act", kor: "행동하다", ch: 1 }, { eng: "add", kor: "더하다, 추가하다", ch: 1 }, { eng: "address", kor: "주소", ch: 1 }, { eng: "adult", kor: "성인, 어른", ch: 1 }, { eng: "adventure", kor: "모험", ch: 1 },
+        { eng: "advertise", kor: "광고하다", ch: 2 }, { eng: "advise", kor: "조언하다", ch: 2 }, { eng: "afraid", kor: "두려워하는, 겁내는", ch: 2 }, { eng: "after", kor: "~후에", ch: 2 }, { eng: "afternoon", kor: "오후", ch: 2 }, { eng: "again", kor: "다시", ch: 2 }, { eng: "against", kor: "~에 반대하여", ch: 2 }, { eng: "age", kor: "나이, 연령", ch: 2 }, { eng: "ago", kor: "~전에", ch: 2 }, { eng: "agree", kor: "동의하다", ch: 2 },
+        { eng: "ahead", kor: "앞으로, 앞에", ch: 3 }, { eng: "aim", kor: "목적, 목표", ch: 3 }, { eng: "airline", kor: "항공사", ch: 3 }, { eng: "airplane", kor: "비행기", ch: 3 }, { eng: "airport", kor: "공항", ch: 3 }, { eng: "album", kor: "사진첩", ch: 3 }, { eng: "alive", kor: "살아있는", ch: 3 }, { eng: "all", kor: "모든", ch: 3 }, { eng: "allow", kor: "허락하다", ch: 3 }, { eng: "almost", kor: "거의", ch: 3 },
+        { eng: "alone", kor: "혼자, 외로운", ch: 4 }, { eng: "along", kor: "~을 따라", ch: 4 }, { eng: "aloud", kor: "소리내어, 큰소리로", ch: 4 }, { eng: "already", kor: "이미, 벌써", ch: 4 }, { eng: "alright", kor: "괜찮은, 좋아", ch: 4 }, { eng: "also", kor: "또한", ch: 4 }, { eng: "although", kor: "비록 ~이긴 하지만", ch: 4 }, { eng: "always", kor: "항상", ch: 4 }, { eng: "amaze", kor: "놀라게 하다", ch: 4 }, { eng: "amount", kor: "양, 액수", ch: 4 },
+        { eng: "amuse", kor: "즐겁게하다", ch: 5 }, { eng: "and", kor: "그리고", ch: 5 }, { eng: "angel", kor: "천사", ch: 5 }, { eng: "anger", kor: "화, 분노", ch: 5 }, { eng: "animal", kor: "동물", ch: 5 }, { eng: "anniversary", kor: "기념일", ch: 5 }, { eng: "another", kor: "또 다른", ch: 5 }, { eng: "answer", kor: "답하다", ch: 5 }, { eng: "any", kor: "어떤, 어느", ch: 5 }, { eng: "apartment", kor: "아파트", ch: 5 },
+        { eng: "apology", kor: "사과", ch: 6 }, { eng: "appear", kor: "나타나다", ch: 6 }, { eng: "apple", kor: "사과", ch: 6 }, { eng: "appreciate", kor: "고마워하다", ch: 6 }, { eng: "approach", kor: "다가가다, 접근", ch: 6 }, { eng: "architect", kor: "건축가", ch: 6 }, { eng: "area", kor: "지역, 구역", ch: 6 }, { eng: "arm", kor: "팔", ch: 6 }, { eng: "around", kor: "주변에", ch: 6 }, { eng: "arrive", kor: "도착하다", ch: 6 },
+        { eng: "arrow", kor: "화살, 화살표", ch: 7 }, { eng: "art", kor: "미술, 예술", ch: 7 }, { eng: "article", kor: "기사, 글", ch: 7 }, { eng: "as", kor: "~처럼", ch: 7 }, { eng: "ask", kor: "묻다", ch: 7 }, { eng: "asleep", kor: "잠이 든", ch: 7 }, { eng: "at", kor: "~에서", ch: 7 }, { eng: "attack", kor: "공격하다", ch: 7 }, { eng: "attention", kor: "주의, 주목", ch: 7 }, { eng: "audience", kor: "청중, 시청자", ch: 7 },
+        { eng: "aunt", kor: "고모, 이모", ch: 8 }, { eng: "automatic", kor: "자동의", ch: 8 }, { eng: "autumn", kor: "가을", ch: 8 }, { eng: "avail", kor: "도움이 되다", ch: 8 }, { eng: "average", kor: "평균의", ch: 8 }, { eng: "awake", kor: "깨어있는", ch: 8 }, { eng: "award", kor: "상, 수여하다", ch: 8 }, { eng: "away", kor: "떨어져", ch: 8 }, { eng: "baby", kor: "아기", ch: 8 }, { eng: "back", kor: "뒤쪽, 등", ch: 8 },
+        { eng: "background", kor: "배경", ch: 9 }, { eng: "bad", kor: "나쁜", ch: 9 }, { eng: "badminton", kor: "배드민턴", ch: 9 }, { eng: "bag", kor: "가방", ch: 9 }, { eng: "bake", kor: "굽다", ch: 9 }, { eng: "balance", kor: "균형", ch: 9 }, { eng: "ball", kor: "공", ch: 9 }, { eng: "balloon", kor: "풍선", ch: 9 }, { eng: "banana", kor: "바나나", ch: 9 }, { eng: "bank", kor: "은행", ch: 9 },
+        { eng: "base", kor: "기초, 아랫부분", ch: 10 }, { eng: "baseball", kor: "야구", ch: 10 }, { eng: "basket", kor: "바구니", ch: 10 }, { eng: "basketball", kor: "농구", ch: 10 }, { eng: "bat", kor: "박쥐, 방망이", ch: 10 }, { eng: "bath", kor: "목욕, 욕조", ch: 10 }, { eng: "be", kor: "있다, 존재하다", ch: 10 }, { eng: "beach", kor: "해변", ch: 10 }, { eng: "bear", kor: "곰", ch: 10 }, { eng: "beauty", kor: "아름다움", ch: 10 },
+        { eng: "beautiful", kor: "아름다운", ch: 11 }, { eng: "because", kor: "~때문에", ch: 11 }, { eng: "become", kor: "~이 되다", ch: 11 }, { eng: "bed", kor: "침대", ch: 11 }, { eng: "bee", kor: "벌", ch: 11 }, { eng: "beef", kor: "소고기", ch: 11 }, { eng: "before", kor: "~전에", ch: 11 }, { eng: "beg", kor: "간청하다", ch: 11 }, { eng: "begin", kor: "시작하다", ch: 11 }, { eng: "behave", kor: "행동하다", ch: 11 },
+        { eng: "behind", kor: "~뒤에", ch: 12 }, { eng: "believe", kor: "믿다", ch: 12 }, { eng: "bell", kor: "종, 벨", ch: 12 }, { eng: "below", kor: "~아래에", ch: 12 }, { eng: "belt", kor: "벨트, 허리띠", ch: 12 }, { eng: "bench", kor: "벤치", ch: 12 }, { eng: "beside", kor: "~옆에", ch: 12 }, { eng: "between", kor: "~사이에", ch: 12 }, { eng: "beyond", kor: "~너머", ch: 12 }, { eng: "big", kor: "큰", ch: 12 },
+        { eng: "bike", kor: "자전거", ch: 13 }, { eng: "bill", kor: "청구서, 지폐", ch: 13 }, { eng: "billion", kor: "10억", ch: 13 }, { eng: "bird", kor: "새", ch: 13 }, { eng: "birth", kor: "탄생, 출생", ch: 13 }, { eng: "biscuit", kor: "비스킷", ch: 13 }, { eng: "bite", kor: "물다", ch: 13 }, { eng: "bitter", kor: "쓴 맛", ch: 13 }, { eng: "black", kor: "검은색", ch: 13 }, { eng: "blank", kor: "빈칸, 여백", ch: 13 },
+        { eng: "blanket", kor: "담요", ch: 14 }, { eng: "block", kor: "덩어리, 막다", ch: 14 }, { eng: "blood", kor: "피, 혈액", ch: 14 }, { eng: "blow", kor: "불다", ch: 14 }, { eng: "blue", kor: "파란색", ch: 14 }, { eng: "board", kor: "판자, 탑승하다", ch: 14 }, { eng: "boat", kor: "배, 보트", ch: 14 }, { eng: "body", kor: "몸, 신체", ch: 14 }, { eng: "bone", kor: "뼈", ch: 14 }, { eng: "book", kor: "책", ch: 14 },
+        { eng: "borrow", kor: "빌리다", ch: 15 }, { eng: "both", kor: "둘 다", ch: 15 }, { eng: "bottle", kor: "병", ch: 15 }, { eng: "bottom", kor: "아래, 바닥", ch: 15 }, { eng: "box", kor: "상자", ch: 15 }, { eng: "boy", kor: "남자아이", ch: 15 }, { eng: "brain", kor: "뇌", ch: 15 }, { eng: "branch", kor: "나뭇가지", ch: 15 }, { eng: "bread", kor: "빵", ch: 15 }, { eng: "break", kor: "깨지다, 고장나다", ch: 15 },
+        { eng: "breakfast", kor: "아침식사", ch: 16 }, { eng: "breath", kor: "숨, 호흡", ch: 16 }, { eng: "breathe", kor: "숨을 쉬다", ch: 16 }, { eng: "bridge", kor: "다리", ch: 16 }, { eng: "brief", kor: "짧은, 요약", ch: 16 }, { eng: "bright", kor: "밝은", ch: 16 }, { eng: "bring", kor: "가져오다", ch: 16 }, { eng: "brother", kor: "남동생, 형", ch: 16 }, { eng: "brown", kor: "갈색", ch: 16 }, { eng: "brush", kor: "솔, 붓", ch: 16 },
+        { eng: "build", kor: "짓다, 건설하다", ch: 17 }, { eng: "burn", kor: "타다, 화상", ch: 17 }, { eng: "bus", kor: "버스", ch: 17 }, { eng: "bush", kor: "덤불", ch: 17 }, { eng: "business", kor: "사업, 업무", ch: 17 }, { eng: "busy", kor: "바쁜", ch: 17 }, { eng: "but", kor: "그러나", ch: 17 }, { eng: "butter", kor: "버터", ch: 17 }, { eng: "button", kor: "단추", ch: 17 }, { eng: "buy", kor: "사다", ch: 17 },
+        { eng: "by", kor: "~옆에, ~에 의해", ch: 18 }, { eng: "cake", kor: "케이크", ch: 18 }, { eng: "calculate", kor: "계산하다", ch: 18 }, { eng: "calendar", kor: "달력", ch: 18 }, { eng: "call", kor: "부르다, 전화", ch: 18 }, { eng: "calm", kor: "침착한", ch: 18 }, { eng: "camera", kor: "카메라", ch: 18 }, { eng: "camp", kor: "야영하다", ch: 18 }, { eng: "campaign", kor: "캠페인", ch: 18 }, { eng: "cancel", kor: "취소하다", ch: 18 },
+        { eng: "candy", kor: "사탕", ch: 19 }, { eng: "cap", kor: "모자", ch: 19 }, { eng: "card", kor: "카드", ch: 19 }, { eng: "care", kor: "보살핌", ch: 19 }, { eng: "career", kor: "직업, 경력", ch: 19 }, { eng: "chicken", kor: "닭고기", ch: 19 }, { eng: "child", kor: "어린이", ch: 19 }, { eng: "cheap", kor: "값이 싼", ch: 19 }, { eng: "chocolate", kor: "초콜릿", ch: 19 }, { eng: "choice", kor: "선택", ch: 19 },
+        { eng: "choose", kor: "선택하다", ch: 20 }, { eng: "church", kor: "교회", ch: 20 }, { eng: "cinema", kor: "영화관", ch: 20 }, { eng: "circle", kor: "원, 동그라미", ch: 20 }, { eng: "city", kor: "도시", ch: 20 }, { eng: "class", kor: "수업, 학급", ch: 20 }, { eng: "classic", kor: "고전적인", ch: 20 }, { eng: "clean", kor: "깨끗한", ch: 20 }, { eng: "clear", kor: "분명한, 확실한", ch: 20 }, { eng: "clever", kor: "영리한", ch: 20 }
     ];
 
     let currentChapterWords = [];
@@ -266,13 +149,13 @@
     let score = 0;
     let userName = "";
 
-    // [1] 카드 학습
+    // [카드 학습 함수 등록]
     let studyIdx = 0;
     window.startStudy = (chNum) => {
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum); studyIdx = 0;
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('study-screen').classList.remove('hidden');
-        updateStudyCard();
+        window.updateStudyCard();
     };
     window.updateStudyCard = () => {
         const word = currentChapterWords[studyIdx];
@@ -281,16 +164,17 @@
         document.getElementById('card-counter').innerText = `${studyIdx + 1} / ${currentChapterWords.length}`;
         document.querySelector('.card-inner').classList.remove('is-flipped');
     };
-    window.nextCard = () => { if(studyIdx < currentChapterWords.length - 1) { studyIdx++; updateStudyCard(); } };
-    window.prevCard = () => { if(studyIdx > 0) { studyIdx--; updateStudyCard(); } };
+    window.nextCard = () => { if(studyIdx < currentChapterWords.length - 1) { studyIdx++; window.updateStudyCard(); } };
+    window.prevCard = () => { if(studyIdx > 0) { studyIdx--; window.updateStudyCard(); } };
 
-    // [2] 메모리 게임
+    // [메모리 게임 함수 등록]
     let firstCard = null, secondCard = null, lockBoard = false, matchesFound = 0;
     window.startMemory = (chNum) => {
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
         let cards = []; currentChapterWords.forEach(w => { cards.push({ t: w.eng, id: w.eng }); cards.push({ t: w.kor, id: w.eng }); });
         cards.sort(() => Math.random() - 0.5);
         const grid = document.getElementById('memory-grid'); grid.innerHTML = ""; matchesFound = 0;
+        document.getElementById('memory-info').innerText = `남은 짝: 10개`;
         cards.forEach(card => {
             const el = document.createElement('div'); el.className = 'memory-card'; el.innerText = "?";
             el.onclick = () => {
@@ -301,23 +185,24 @@
                 if(firstCard.dataset.id === secondCard.dataset.id) {
                     matchesFound++; firstCard.classList.add('matched'); secondCard.classList.add('matched'); 
                     document.getElementById('memory-info').innerText = `남은 짝: ${10-matchesFound}개`;
-                    resetTurn(); if(matchesFound === 10) alert("참 잘했어요!");
+                    [firstCard, secondCard, lockBoard] = [null, null, false];
+                    if(matchesFound === 10) setTimeout(() => alert("참 잘했어요!"), 300);
                 } else {
-                    setTimeout(() => { firstCard.innerText="?"; secondCard.innerText="?"; firstCard.classList.remove('flipped'); secondCard.classList.remove('flipped'); resetTurn(); }, 800);
+                    setTimeout(() => { firstCard.innerText="?"; secondCard.innerText="?"; firstCard.classList.remove('flipped'); secondCard.classList.remove('flipped'); [firstCard, secondCard, lockBoard] = [null, null, false]; }, 800);
                 }
             };
             grid.appendChild(el);
         });
         document.getElementById('start-screen').classList.add('hidden'); document.getElementById('memory-screen').classList.remove('hidden');
     };
-    function resetTurn() { [firstCard, secondCard, lockBoard] = [null, null, false]; }
 
-    // [3] 풍선 게임 (⚡ 속도 강화)
+    // [풍선 게임 함수 등록]
     let bScore = 0, bLife = 3, bTarget = "", bInterval;
     window.startBalloonGame = (chNum) => {
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
         document.getElementById('balloon-area').style.display = 'block';
-        bScore = 0; bLife = 3; updateBInfo(); setBTarget();
+        bScore = 0; bLife = 3; window.updateBInfo(); window.setBTarget();
+        if(bInterval) clearInterval(bInterval);
         bInterval = setInterval(createB, 1000);
     };
     function createB() {
@@ -326,62 +211,68 @@
         b.className='balloon'; b.innerText=w.eng; b.style.left=Math.random()*(window.innerWidth-120)+'px'; b.style.top=window.innerHeight+'px';
         b.style.backgroundColor=`hsl(${Math.random()*360},70%,60%)`;
         b.onclick=()=>{
-            if(w.kor===bTarget){ bScore+=10; b.remove(); setBTarget(); }
+            if(w.kor===bTarget){ bScore+=10; b.remove(); window.setBTarget(); }
             else { bLife--; b.style.background="black"; setTimeout(()=>b.remove(),200); }
-            updateBInfo();
+            window.updateBInfo();
         };
         document.getElementById('balloon-area').appendChild(b);
         let pos=window.innerHeight, speed=5.5+(bScore/80);
         const move=setInterval(()=>{
             pos-=speed; b.style.top=pos+'px';
-            if(pos<-150){ clearInterval(move); if(w.kor===bTarget&&b.parentNode){ bLife--; updateBInfo(); setBTarget(); } if(b.parentNode) b.remove(); }
+            if(pos<-150){ 
+                clearInterval(move); 
+                if(w.kor===bTarget && b.parentNode){ bLife--; window.updateBInfo(); window.setBTarget(); } 
+                if(b.parentNode) b.remove(); 
+            }
             if(bLife<=0){ clearInterval(move); clearInterval(bInterval); alert("게임 종료!"); location.reload(); }
         },16);
     }
-    function updateBInfo(){ document.getElementById('balloon-score').innerText=`점수: ${bScore}`; document.getElementById('balloon-life').innerText="❤️".repeat(bLife); }
-    function setBTarget(){ bTarget=currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)].kor; document.getElementById('balloon-target').innerText=bTarget; }
+    window.updateBInfo = () => { document.getElementById('balloon-score').innerText=`점수: ${bScore}`; document.getElementById('balloon-life').innerText="❤️".repeat(bLife); };
+    window.setBTarget = () => { bTarget=currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)].kor; document.getElementById('balloon-target').innerText=bTarget; };
 
-    // [4] 서바이벌 도전 & [5] 순위 보기
+    // [서바이벌 도전 & 순위 함수 등록]
     window.selectChapter = (chNum) => {
-        userName = document.getElementById('user-name').value.trim(); if(!userName) return alert("이름 입력!");
+        userName = document.getElementById('user-name').value.trim(); if(!userName) return alert("이름을 입력해주세요!");
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
         document.getElementById('start-screen').classList.add('hidden'); document.getElementById('quiz-screen').classList.remove('hidden');
         let timeLeft = 120; score = 0;
         const tInt = setInterval(() => {
             timeLeft--; document.getElementById('timer-text').innerText=timeLeft+"초";
             document.getElementById('timer-progress').style.width=(timeLeft/120*100)+"%";
-            if(timeLeft<=0){ clearInterval(tInt); finishGame(); }
+            if(timeLeft<=0){ clearInterval(tInt); window.finishGame(); }
         }, 1000);
-        renderQuiz();
+        window.renderQuiz();
     };
-    function renderQuiz(){
+    window.renderQuiz = () => {
         const item = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
         document.getElementById('question').innerText = item.eng;
         let choices = [item.kor]; while(choices.length<4){ let r=allWords[Math.floor(Math.random()*allWords.length)].kor; if(!choices.includes(r)) choices.push(r); }
         const grid = document.getElementById('options-grid'); grid.innerHTML = "";
         choices.sort(()=>Math.random()-0.5).forEach(c => {
             const b = document.createElement('button'); b.className='opt-btn'; b.innerText=c;
-            b.onclick=()=>{ if(c===item.kor){ score+=10; document.getElementById('score-text').innerText="점수: "+score; renderQuiz(); } else { alert("오답!"); renderQuiz(); } };
+            b.onclick=()=>{ if(c===item.kor){ score+=10; document.getElementById('score-text').innerText="점수: "+score; window.renderQuiz(); } else { alert("오답입니다!"); window.renderQuiz(); } };
             grid.appendChild(b);
         });
-    }
-    async function finishGame(){
+    };
+    window.finishGame = async () => {
         document.getElementById('quiz-screen').classList.add('hidden'); document.getElementById('result-screen').classList.remove('hidden');
         document.getElementById('final-score-text').innerText = `${userName}님: ${score}점`;
-        await addDoc(collection(db, "rankings"), { name: userName, score: score, chapter: selectedCh, time: new Date() });
-        loadRanking(selectedCh);
-    }
+        try {
+            await addDoc(collection(db, "rankings"), { name: userName, score: score, chapter: selectedCh, time: new Date() });
+            window.loadRanking(selectedCh);
+        } catch(e) { console.error("Error adding document: ", e); }
+    };
     window.viewRankingOnly = (chNum) => {
         selectedCh = chNum; document.getElementById('start-screen').classList.add('hidden'); document.getElementById('result-screen').classList.remove('hidden');
-        document.getElementById('result-title').innerText = `${chNum}단원 순위`; loadRanking(chNum);
+        document.getElementById('result-title').innerText = `${chNum}단원 순위표`; window.loadRanking(chNum);
     };
-    async function loadRanking(chNum){
+    window.loadRanking = async (chNum) => {
         const q = query(collection(db, "rankings"), where("chapter", "==", chNum), orderBy("score", "desc"), limit(10));
         const snap = await getDocs(q); const body = document.getElementById('rank-body'); body.innerHTML = "";
         let r=1; snap.forEach(d => { body.innerHTML += `<tr><td>${r++}</td><td>${d.data().name}</td><td>${d.data().score}</td></tr>`; });
-    }
+    };
 
-    // 메인 리스트 생성
+    // [메인 리스트 생성]
     document.addEventListener('DOMContentLoaded', () => {
         const grid = document.getElementById('chapter-grid');
         for(let i=1; i<=20; i++) {
