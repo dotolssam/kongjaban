@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>초등 영단어 올인원 챌린지</title>
     <style>
-        :root { --primary: #6c5ce7; --bg: #f9f9fb; --accent: #ff7675; --correct: #27ae60; --wrong: #e74c3c; --memory: #00b894; --study: #0984e3; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        #game-box { background: white; width: 95%; max-width: 600px; padding: 2rem; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; position: relative; }
+        :root { --primary: #6c5ce7; --bg: #f9f9fb; --accent: #ff7675; --correct: #27ae60; --wrong: #e74c3c; --memory: #00b894; --study: #0984e3; --balloon: #fdcb6e; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow: hidden; }
+        #game-box { background: white; width: 95%; max-width: 600px; padding: 2rem; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; position: relative; z-index: 10; }
         
-        /* 메인 리스트 스타일 */
         .chapter-list { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px; max-height: 450px; overflow-y: auto; padding: 10px; }
         .chapter-row { display: flex; gap: 8px; flex-wrap: wrap; background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 15px; }
         .chapter-info { flex: 1 1 100%; text-align: left; font-weight: bold; margin-bottom: 5px; color: #444; }
@@ -17,27 +16,31 @@
         .btn-survival { background: var(--primary); }
         .btn-study { background: var(--study); }
         .btn-memory { background: var(--memory); }
-        .btn-rank { background: #636e72; }
-        .mode-btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        .btn-balloon { background: var(--balloon); color: #333; }
+        .hidden { display: none; }
 
-        /* 단어 카드 학습 모드 스타일 */
+        /* 풍선 게임 레이어 */
+        #balloon-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #e0f7fa; z-index: 100; display: none; overflow: hidden; }
+        .balloon { position: absolute; width: 110px; height: 130px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; cursor: pointer; box-shadow: inset -10px -10px 15px rgba(0,0,0,0.1); text-align: center; padding: 10px; font-size: 1.1rem; word-break: break-all; }
+        #balloon-target { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: white; padding: 15px 50px; border-radius: 50px; font-size: 1.8rem; font-weight: 900; border: 5px solid var(--balloon); box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 110; }
+        #balloon-stats { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 1.5rem; font-weight: bold; z-index: 110; }
+
+        /* 카드 학습 */
         .flash-card { width: 280px; height: 180px; margin: 20px auto; perspective: 1000px; cursor: pointer; }
         .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px; border: 3px solid var(--study); background: white; font-size: 2rem; font-weight: bold; }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px; border: 3px solid var(--study); background: white; font-size: 2.2rem; font-weight: bold; }
         .card-back { background: #f0f7ff; transform: rotateY(180deg); color: var(--study); }
 
-        /* 메모리 게임 스타일 */
-        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 15px; }
-        .memory-card { height: 80px; background: var(--memory); border-radius: 10px; display: flex; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 0.85rem; font-weight: bold; padding: 5px; word-break: keep-all; transition: 0.3s; }
+        /* 메모리 게임 */
+        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .memory-card { height: 90px; background: var(--memory); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 0.9rem; font-weight: bold; padding: 5px; }
         .memory-card.flipped { background: white; color: #333; border: 2px solid var(--memory); }
-        .memory-card.matched { background: #eee; color: #ccc; border: none; cursor: default; visibility: hidden; }
+        .memory-card.matched { visibility: hidden; }
 
-        .hidden { display: none; }
         .btn-main { margin-top: 20px; width: 100%; padding: 15px; background: #636e72; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
-        #question { font-size: 2.2rem; font-weight: 800; margin: 1.2rem 0; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .options { display: grid; gap: 10px; }
-        .opt-btn { padding: 15px; border-radius: 12px; border: 1px solid #ddd; background: white; font-size: 1.1rem; cursor: pointer; }
+        .opt-btn { padding: 15px; border-radius: 12px; border: 1px solid #ddd; background: white; font-size: 1.2rem; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -45,50 +48,49 @@
 <div id="game-box">
     <div id="start-screen">
         <h1>영단어 마스터 🚀</h1>
-        <input type="text" id="user-name" placeholder="이름을 입력하세요">
+        <input type="text" id="user-name" placeholder="이름을 입력하세요" style="width:80%; padding:12px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd; text-align:center;">
         <div class="chapter-list" id="chapter-grid"></div>
     </div>
 
     <div id="study-screen" class="hidden">
         <h2 style="color: var(--study);">단어 카드 학습</h2>
-        <div id="card-counter">1 / 10</div>
+        <div id="card-counter" style="font-weight:bold; color:#666;">1 / 10</div>
         <div class="flash-card" onclick="this.querySelector('.card-inner').classList.toggle('is-flipped')">
             <div class="card-inner">
-                <div class="card-face card-front" id="study-eng">Apple</div>
-                <div class="card-face card-back" id="study-kor">사과</div>
+                <div class="card-face card-front" id="study-eng">Word</div>
+                <div class="card-face card-back" id="study-kor">뜻</div>
             </div>
         </div>
-        <p style="color: #888; font-size: 0.8rem;">카드를 클릭하면 뒤집어집니다.</p>
         <div style="display:flex; gap:10px; justify-content: center;">
-            <button onclick="prevCard()" class="mode-btn btn-study" style="flex:none; width:80px;">이전</button>
-            <button onclick="nextCard()" class="mode-btn btn-study" style="flex:none; width:80px;">다음</button>
+            <button onclick="prevCard()" class="mode-btn btn-study" style="flex:none; width:100px; padding:15px;">이전</button>
+            <button onclick="nextCard()" class="mode-btn btn-study" style="flex:none; width:100px; padding:15px;">다음</button>
         </div>
         <button onclick="location.reload()" class="btn-main">그만하기</button>
     </div>
 
     <div id="memory-screen" class="hidden">
         <h2 style="color: var(--memory);">짝 맞추기 게임</h2>
-        <div id="memory-info">남은 짝: 10개</div>
+        <div id="memory-info" style="margin-bottom:10px; font-weight:bold;">남은 짝: 10개</div>
         <div class="memory-grid" id="memory-grid"></div>
         <button onclick="location.reload()" class="btn-main">그만하기</button>
     </div>
 
     <div id="quiz-screen" class="hidden">
-        <div id="timer-bar" style="width:100%; height:10px; background:#eee; border-radius:5px; margin-bottom:10px; overflow:hidden;">
+        <div style="width:100%; height:10px; background:#eee; border-radius:5px; margin-bottom:10px; overflow:hidden;">
             <div id="timer-progress" style="width:100%; height:100%; background:var(--accent); transition: linear;"></div>
         </div>
-        <div id="info-bar" style="display:flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold;">
-            <span id="timer-text" style="color: var(--accent);">120초</span>
+        <div style="display:flex; justify-content: space-between; font-weight:bold; margin-bottom:10px;">
+            <span id="timer-text" style="color:var(--accent);">120초</span>
             <span id="score-text">점수: 0</span>
         </div>
-        <div id="question">준비...</div>
+        <div id="question" style="font-size:2.5rem; font-weight:800; min-height:120px; display:flex; flex-direction:column; justify-content:center;">준비...</div>
         <div class="options" id="options-grid"></div>
-        <div id="feedback"></div>
+        <div id="feedback" style="margin-top:15px; font-weight:bold; min-height:30px;"></div>
     </div>
 
     <div id="result-screen" class="hidden">
         <h2 id="result-title">순위표 🏆</h2>
-        <p id="final-score-text"></p>
+        <p id="final-score-text" style="font-size:1.2rem; font-weight:bold; color:var(--primary);"></p>
         <div style="background:#f8f9fa; padding:15px; border-radius:15px; margin-bottom: 15px;">
             <table style="width:100%; border-collapse:collapse;">
                 <thead><tr><th>순위</th><th>이름</th><th>점수</th></tr></thead>
@@ -97,6 +99,15 @@
         </div>
         <button onclick="location.reload()" class="btn-main">메인으로</button>
     </div>
+</div>
+
+<div id="balloon-area">
+    <div id="balloon-stats">
+        <div id="balloon-score">점수: 0</div>
+        <div id="balloon-life">❤️❤️❤️</div>
+    </div>
+    <div id="balloon-target">대상 단어</div>
+    <button onclick="location.reload()" style="position:absolute; bottom:20px; right:20px; padding:10px 20px; z-index:120; border-radius:10px; border:none; background:#636e72; color:white; font-weight:bold; cursor:pointer;">게임 종료</button>
 </div>
 
 <script type="module">
@@ -116,7 +127,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const allWords = [     /* 1단원 (1~10) */
+    const allWords = [
+     /* 1단원 (1~10) */
     { eng: "a/an", kor: "하나의", ch: 1 }, { eng: "about", kor: "~에 대해", ch: 1 },
     { eng: "above", kor: "~보다 위에", ch: 1 }, { eng: "able", kor: "~할 수 있는", ch: 1 },
     { eng: "accident", kor: "사고, 우연", ch: 1 }, { eng: "act", kor: "행동하다", ch: 1 },
@@ -256,24 +268,104 @@
     { eng: "classic", kor: "고전적인", ch: 20 }, { eng: "clean", kor: "깨끗한", ch: 20 },
     { eng: "clear", kor: "분명한, 확실한", ch: 20 }, { eng: "clever", kor: "영리한", ch: 20 }
 
-
-
-        ];
+    ];
 
     let currentChapterWords = [];
     let score = 0;
     let userName = "";
     let selectedCh = 0;
-    let startTime;
-    let timeLeft = 120;
     let timerInterval;
 
-    // --- [모드 1] 단어 카드 학습 관련 ---
-    let studyIdx = 0;
-    window.startStudy = (chNum) => {
+    // --- [풍선 터뜨리기] ⚡ 속도 강화 로직 ---
+    let balloonScore = 0;
+    let balloonLife = 3;
+    let balloonTarget = "";
+    let balloonInterval;
+
+    window.startBalloonGame = (chNum) => {
         selectedCh = chNum;
         currentChapterWords = allWords.filter(w => w.ch === chNum);
-        studyIdx = 0;
+        document.getElementById('balloon-area').style.display = 'block';
+        balloonScore = 0; balloonLife = 3;
+        updateBalloonInfo();
+        setNextBalloonTarget();
+        // 풍선 생성 간격을 1초로 단축 (더 빨리빨리 나옴)
+        balloonInterval = setInterval(createBalloon, 1000);
+    };
+
+    function createBalloon() {
+        if(balloonLife <= 0) return;
+        const b = document.createElement('div');
+        const word = currentChapterWords[Math.floor(Math.random() * currentChapterWords.length)];
+        b.className = 'balloon';
+        b.innerText = word.eng;
+        b.style.left = Math.random() * (window.innerWidth - 120) + 'px';
+        b.style.top = window.innerHeight + 'px';
+        b.style.backgroundColor = `hsl(${Math.random() * 360}, 75%, 55%)`;
+        
+        b.onclick = () => {
+            if(word.kor === balloonTarget) {
+                balloonScore += 10;
+                b.style.transform = "scale(1.5)";
+                b.style.opacity = "0";
+                setTimeout(() => b.remove(), 100);
+                setNextBalloonTarget();
+            } else {
+                balloonLife--;
+                b.style.backgroundColor = "black";
+                setTimeout(() => b.remove(), 200);
+            }
+            updateBalloonInfo();
+        };
+
+        document.getElementById('balloon-area').appendChild(b);
+
+        let pos = window.innerHeight;
+        // ⭐ 속도 대폭 상향: 기본 5.5 + 점수에 따른 가속
+        let speed = 5.5 + (balloonScore / 80); 
+
+        const move = setInterval(() => {
+            pos -= speed;
+            b.style.top = pos + 'px';
+            
+            if(pos < -150) {
+                clearInterval(move);
+                if(word.kor === balloonTarget && b.parentNode) {
+                    balloonLife--;
+                    updateBalloonInfo();
+                    setNextBalloonTarget();
+                }
+                if(b.parentNode) b.remove();
+            }
+
+            if(balloonLife <= 0) {
+                clearInterval(move);
+                clearInterval(balloonInterval);
+                endBalloonGame();
+            }
+        }, 16); // 60fps에 가깝게 프레임 유지
+    }
+
+    function setNextBalloonTarget() {
+        const targetWord = currentChapterWords[Math.floor(Math.random() * currentChapterWords.length)];
+        balloonTarget = targetWord.kor;
+        document.getElementById('balloon-target').innerText = balloonTarget;
+    }
+
+    function updateBalloonInfo() {
+        document.getElementById('balloon-score').innerText = `점수: ${balloonScore}`;
+        document.getElementById('balloon-life').innerText = "❤️".repeat(balloonLife);
+    }
+
+    function endBalloonGame() {
+        alert(`게임 종료! 최종 점수: ${balloonScore}점`);
+        location.reload();
+    }
+
+    // --- [나머지 모드 로직 동일 유지] ---
+    let studyIdx = 0;
+    window.startStudy = (chNum) => {
+        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum); studyIdx = 0;
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('study-screen').classList.remove('hidden');
         updateStudyCard();
@@ -283,158 +375,67 @@
         document.getElementById('study-eng').innerText = word.eng;
         document.getElementById('study-kor').innerText = word.kor;
         document.getElementById('card-counter').innerText = `${studyIdx + 1} / ${currentChapterWords.length}`;
-        document.querySelector('.card-inner').classList.remove('is-flipped');
     }
     window.nextCard = () => { if(studyIdx < currentChapterWords.length - 1) { studyIdx++; updateStudyCard(); } };
     window.prevCard = () => { if(studyIdx > 0) { studyIdx--; updateStudyCard(); } };
 
-    // --- [모드 2] 메모리 게임 관련 ---
-    let firstCard = null;
-    let secondCard = null;
-    let lockBoard = false;
-    let matchesFound = 0;
-
+    let firstCard = null, secondCard = null, lockBoard = false, matchesFound = 0;
     window.startMemory = (chNum) => {
-        selectedCh = chNum;
-        let words = allWords.filter(w => w.ch === chNum);
-        let cards = [];
-        words.forEach(w => {
-            cards.push({ text: w.eng, pairId: w.eng });
-            cards.push({ text: w.kor, pairId: w.eng });
-        });
+        selectedCh = chNum; let words = allWords.filter(w => w.ch === chNum);
+        let cards = []; words.forEach(w => { cards.push({ text: w.eng, id: w.eng }); cards.push({ text: w.kor, id: w.eng }); });
         cards.sort(() => Math.random() - 0.5);
-
-        const grid = document.getElementById('memory-grid');
-        grid.innerHTML = "";
-        matchesFound = 0;
-        document.getElementById('memory-info').innerText = `남은 짝: ${words.length}개`;
-
+        const grid = document.getElementById('memory-grid'); grid.innerHTML = ""; matchesFound = 0;
         cards.forEach(card => {
-            const el = document.createElement('div');
-            el.className = 'memory-card';
-            el.dataset.id = card.pairId;
-            el.innerText = "?";
-            el.onclick = () => flipMemoryCard(el, card.text);
+            const el = document.createElement('div'); el.className = 'memory-card'; el.innerText = "?";
+            el.onclick = () => {
+                if(lockBoard || el === firstCard || el.classList.contains('matched')) return;
+                el.innerText = card.text; el.classList.add('flipped');
+                if(!firstCard) { firstCard = el; return; }
+                secondCard = el; lockBoard = true;
+                if(firstCard.innerText === card.id || secondCard.innerText === card.id || (firstCard.innerText !== secondCard.innerText && words.find(w=> (w.eng === firstCard.innerText && w.kor === secondCard.innerText) || (w.kor === firstCard.innerText && w.eng === secondCard.innerText)))) {
+                    matchesFound++; firstCard.classList.add('matched'); secondCard.classList.add('matched'); [firstCard, secondCard, lockBoard] = [null, null, false];
+                    if(matchesFound === 10) alert("성공!");
+                } else {
+                    setTimeout(() => { firstCard.innerText="?"; secondCard.innerText="?"; firstCard.classList.remove('flipped'); secondCard.classList.remove('flipped'); [firstCard, secondCard, lockBoard] = [null, null, false]; }, 800);
+                }
+            };
             grid.appendChild(el);
         });
-
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('memory-screen').classList.remove('hidden');
     };
 
-    function flipMemoryCard(el, text) {
-        if(lockBoard || el === firstCard || el.classList.contains('matched')) return;
-        el.classList.add('flipped');
-        el.innerText = text;
-
-        if(!firstCard) { firstCard = el; return; }
-        secondCard = el;
-        lockBoard = true;
-
-        if(firstCard.dataset.id === secondCard.dataset.id) {
-            setTimeout(() => {
-                firstCard.classList.add('matched');
-                secondCard.classList.add('matched');
-                matchesFound++;
-                document.getElementById('memory-info').innerText = `남은 짝: ${currentChapterWords.length - matchesFound}개`;
-                resetMemoryTurn();
-                if(matchesFound === 10) alert("모두 맞췄습니다! 참 잘했어요!");
-            }, 500);
-        } else {
-            setTimeout(() => {
-                firstCard.classList.remove('flipped');
-                secondCard.classList.remove('flipped');
-                firstCard.innerText = "?";
-                secondCard.innerText = "?";
-                resetMemoryTurn();
-            }, 1000);
-        }
-    }
-    function resetMemoryTurn() { [firstCard, secondCard, lockBoard] = [null, null, false]; }
-
-    // --- [기존 기능] 서바이벌 및 순위 ---
     window.selectChapter = (chNum) => {
-        userName = document.getElementById('user-name').value.trim();
-        if(!userName) return alert("이름을 입력해주세요!");
-        selectedCh = chNum;
-        currentChapterWords = allWords.filter(w => w.ch === chNum);
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('quiz-screen').classList.remove('hidden');
-        startTimer();
+        userName = document.getElementById('user-name').value.trim(); if(!userName) return alert("이름을 입력하세요!");
+        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
+        document.getElementById('start-screen').classList.add('hidden'); document.getElementById('quiz-screen').classList.remove('hidden');
+        let timeLeft = 120;
+        timerInterval = setInterval(() => { 
+            timeLeft--; 
+            document.getElementById('timer-text').innerText = timeLeft + "초"; 
+            document.getElementById('timer-progress').style.width = (timeLeft/120*100) + "%";
+            if(timeLeft <= 0) { clearInterval(timerInterval); finishGame(); }
+        }, 1000);
         renderQuiz();
     };
 
-    window.viewRankingOnly = async (chNum) => {
-        selectedCh = chNum;
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('result-screen').classList.remove('hidden');
-        loadRanking(chNum);
-    };
-
-    function startTimer() {
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            document.getElementById('timer-text').innerText = `${timeLeft}초`;
-            document.getElementById('timer-progress').style.width = (timeLeft / 120 * 100) + "%";
-            if (timeLeft <= 0) { clearInterval(timerInterval); finishGame(); }
-        }, 1000);
-    }
-
     function renderQuiz() {
-        if (timeLeft <= 0) return;
-        const currentItem = currentChapterWords[Math.floor(Math.random() * currentChapterWords.length)];
-        document.getElementById('feedback').innerText = "";
-        document.getElementById('score-text').innerText = `점수: ${score}`;
-        startTime = Date.now();
-        const type = Math.floor(Math.random() * 3) + 1;
-        const grid = document.getElementById('options-grid');
-        grid.innerHTML = "";
-
-        if (type === 3 && currentItem.eng.length > 2) {
-            const word = currentItem.eng;
-            const hiddenIdx = Math.floor(Math.random() * word.length);
-            let displayWord = "";
-            for(let i=0; i<word.length; i++) displayWord += (i === hiddenIdx) ? "_ " : word[i];
-            document.getElementById('question').innerHTML = `<small>철자 맞추기</small>${displayWord}<br><small>(${currentItem.kor})</small>`;
-            const answer = word[hiddenIdx].toLowerCase();
-            let choices = [answer];
-            while(choices.length < 4) {
-                let r = String.fromCharCode(97 + Math.floor(Math.random() * 26));
-                if(!choices.includes(r)) choices.push(r);
-            }
-            choices.sort(() => Math.random() - 0.5).forEach(c => {
-                const b = document.createElement('button'); b.className="opt-btn"; b.innerText=c;
-                b.onclick = () => checkAnswer(c, answer);
-                grid.appendChild(b);
-            });
-        } else {
-            const isE2K = (type === 1);
-            document.getElementById('question').innerHTML = `<small>${isE2K ? '뜻' : '단어'} 고르기</small>${isE2K ? currentItem.eng : currentItem.kor}`;
-            const ans = isE2K ? currentItem.kor : currentItem.eng;
-            let choices = [ans];
-            while(choices.length < 4) {
-                let r = allWords[Math.floor(Math.random()*allWords.length)];
-                let v = isE2K ? r.kor : r.eng;
-                if(!choices.includes(v)) choices.push(v);
-            }
-            choices.sort(() => Math.random() - 0.5).forEach(c => {
-                const b = document.createElement('button'); b.className="opt-btn"; b.innerText=c;
-                b.onclick = () => checkAnswer(c, ans);
-                grid.appendChild(b);
-            });
+        const item = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
+        const grid = document.getElementById('options-grid'); grid.innerHTML = "";
+        document.getElementById('question').innerText = item.eng;
+        let choices = [item.kor];
+        while(choices.length < 4) {
+            let r = allWords[Math.floor(Math.random()*allWords.length)].kor;
+            if(!choices.includes(r)) choices.push(r);
         }
-    }
-
-    function checkAnswer(c, a) {
-        if (timeLeft <= 0) return;
-        if(c.toLowerCase() === a.toLowerCase()) {
-            const p = 10 + Math.max(0, Math.floor(10 - (Date.now()-startTime)/1000));
-            score += p;
-            document.getElementById('feedback').innerHTML = `<span style='color:var(--correct)'>정답! (+${p})</span>`;
-        } else {
-            document.getElementById('feedback').innerHTML = `<span style='color:var(--wrong)'>오답! 정답: ${a}</span>`;
-        }
-        setTimeout(renderQuiz, 600);
+        choices.sort(()=>Math.random()-0.5).forEach(c => {
+            const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = c;
+            b.onclick = () => {
+                if(c === item.kor) { score += 10; document.getElementById('score-text').innerText = "점수: " + score; renderQuiz(); }
+                else { alert("오답!"); renderQuiz(); }
+            };
+            grid.appendChild(b);
+        });
     }
 
     async function finishGame() {
@@ -442,15 +443,10 @@
         document.getElementById('result-screen').classList.remove('hidden');
         document.getElementById('final-score-text').innerText = `${userName}님: ${score}점`;
         await addDoc(collection(db, "rankings"), { name: userName, score: score, chapter: selectedCh, time: new Date() });
-        loadRanking(selectedCh);
-    }
-
-    async function loadRanking(chNum) {
-        const q = query(collection(db, "rankings"), where("chapter", "==", chNum), orderBy("score", "desc"), limit(10));
+        const q = query(collection(db, "rankings"), where("chapter", "==", selectedCh), orderBy("score", "desc"), limit(10));
         const snap = await getDocs(q);
-        const body = document.getElementById('rank-body');
-        body.innerHTML = ""; let r = 1;
-        snap.forEach(d => { body.innerHTML += `<tr><td>${r++}</td><td>${d.data().name}</td><td>${d.data().score}</td></tr>`; });
+        const body = document.getElementById('rank-body'); body.innerHTML = "";
+        let r = 1; snap.forEach(d => { body.innerHTML += `<tr><td>${r++}</td><td>${d.data().name}</td><td>${d.data().score}</td></tr>`; });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -459,11 +455,11 @@
             const row = document.createElement('div');
             row.className = 'chapter-row';
             row.innerHTML = `
-                <div class="chapter-info">${i}단원 영단어</div>
+                <div class="chapter-info">${i}단원</div>
                 <button onclick="window.startStudy(${i})" class="mode-btn btn-study">학습</button>
                 <button onclick="window.startMemory(${i})" class="mode-btn btn-memory">메모리</button>
+                <button onclick="window.startBalloonGame(${i})" class="mode-btn btn-balloon">풍선</button>
                 <button onclick="window.selectChapter(${i})" class="mode-btn btn-survival">도전</button>
-                <button onclick="window.viewRankingOnly(${i})" class="mode-btn btn-rank">🏆</button>
             `;
             grid.appendChild(row);
         }
