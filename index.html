@@ -7,65 +7,48 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css">
     <style>
         :root {
-            --ios-bg: #f2f2f7;
-            --ios-card: rgba(255, 255, 255, 0.85);
-            --ios-blue: #007aff;
-            --ios-green: #34c759;
-            --ios-pink: #ff2d55;
-            --ios-orange: #ff9500;
-            --ios-indigo: #5856d6;
-            --ios-text: #1c1c1e;
-            --ios-gray: #8e8e93;
-            --shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+            --ios-bg: #f2f2f7; --ios-card: rgba(255, 255, 255, 0.85);
+            --ios-blue: #007aff; --ios-green: #34c759; --ios-pink: #ff2d55;
+            --ios-orange: #ff9500; --ios-indigo: #5856d6; --ios-text: #1c1c1e;
+            --ios-gray: #8e8e93; --shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
         }
 
         body {
             font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
             background: linear-gradient(135deg, #d2d2d7 0%, #f5f5f7 100%);
-            color: var(--ios-text);
-            display: flex; justify-content: center; align-items: center;
+            color: var(--ios-text); display: flex; justify-content: center; align-items: center;
             min-height: 100vh; margin: 0; overflow: hidden;
         }
 
         #game-box {
-            background: var(--ios-card);
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            width: 95%; max-width: 500px; height: 90vh;
-            padding: 25px 15px; border-radius: 40px;
+            background: var(--ios-card); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            width: 95%; max-width: 500px; height: 90vh; padding: 25px 15px; border-radius: 40px;
             box-shadow: var(--shadow); border: 1px solid rgba(255, 255, 255, 0.4);
             display: flex; flex-direction: column; position: relative;
         }
 
         h1 { font-size: 28px; font-weight: 800; margin: 0 0 15px 10px; letter-spacing: -1px; }
-
-        #user-name {
-            width: 90%; padding: 15px; border-radius: 14px; border: none;
-            background: rgba(0, 0, 0, 0.05); font-size: 16px; margin: 0 auto 20px;
-            display: block; outline: none;
+        
+        #user-name { 
+            width: 90%; padding: 18px; border-radius: 16px; border: 2px solid transparent; 
+            background: white; font-size: 16px; margin: 0 auto 20px; display: block; 
+            outline: none; transition: 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        #user-name:focus { border-color: var(--ios-blue); }
+        .shake { animation: shake 0.4s ease-in-out; border-color: var(--ios-pink) !important; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
         }
 
-        /* 단원 리스트 스타일 */
         .chapter-list { flex: 1; overflow-y: auto; padding: 0 5px; }
         .chapter-list::-webkit-scrollbar { width: 0px; }
-
-        .chapter-row {
-            background: white; margin-bottom: 12px; padding: 15px;
-            border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            display: flex; flex-direction: column; gap: 10px;
-        }
-
-        .chapter-info { font-size: 16px; font-weight: 700; color: var(--ios-text); }
-
-        /* 버튼 레이아웃 - 촘촘하게 */
+        .chapter-row { background: white; margin-bottom: 12px; padding: 15px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 10px; }
+        .chapter-info { font-size: 16px; font-weight: 700; }
         .btn-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-
-        .mode-btn {
-            padding: 10px 2px; border-radius: 10px; border: none;
-            font-size: 12px; font-weight: 600; cursor: pointer;
-            transition: 0.15s;
-        }
+        .mode-btn { padding: 10px 2px; border-radius: 10px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.15s; }
         .mode-btn:active { transform: scale(0.94); opacity: 0.7; }
-
         .btn-study { background: #007aff15; color: var(--ios-blue); }
         .btn-memory { background: #34c75915; color: var(--ios-green); }
         .btn-balloon { background: #ff950015; color: var(--ios-orange); }
@@ -73,44 +56,49 @@
         .btn-survival { background: var(--ios-indigo); color: white; }
         .btn-rank { background: #8e8e9315; color: var(--ios-gray); }
 
-        /* 공통 UI */
         .hidden { display: none !important; }
         .btn-main { background: var(--ios-text); color: white; padding: 16px; border-radius: 18px; border: none; font-weight: 700; font-size: 16px; cursor: pointer; width: 100%; margin-top: 10px; }
 
-        /* 순위 탭 */
+        #feedback-area { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); padding: 10px 20px; border-radius: 15px; font-weight: bold; color: white; z-index: 100; transition: 0.3s; opacity: 0; pointer-events: none; }
+        .feedback-wrong { background: var(--ios-pink); opacity: 1 !important; }
+
         .rank-tabs { display: flex; background: rgba(0,0,0,0.06); padding: 4px; border-radius: 12px; margin-bottom: 15px; }
-        .rank-tab { flex: 1; padding: 8px; border: none; border-radius: 9px; font-size: 13px; font-weight: 600; background: transparent; color: var(--ios-gray); cursor: pointer; }
+        .rank-tab { flex: 1; padding: 10px; border: none; border-radius: 9px; font-size: 13px; font-weight: 700; background: transparent; color: var(--ios-gray); cursor: pointer; }
         .rank-tab.active { background: white; color: var(--ios-text); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
         
-        /* 퀴즈/메모리 스타일 */
-        .opt-btn { background: white; border: 1px solid #eee; padding: 15px; border-radius: 15px; font-size: 17px; font-weight: 600; margin-bottom: 8px; cursor: pointer; width: 100%; }
+        .opt-btn { background: white; border: 1px solid #eee; padding: 15px; border-radius: 15px; font-size: 17px; font-weight: 600; margin-bottom: 8px; cursor: pointer; width: 100%; transition: 0.2s; }
+        .opt-wrong { background: var(--ios-pink) !important; color: white !important; border: none; }
+        
         .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .memory-card { height: 70px; background: var(--ios-green); border-radius: 12px; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; padding: 2px; text-align: center; overflow: hidden;}
+        .memory-card { height: 70px; background: var(--ios-green); border-radius: 12px; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; }
         .memory-card.flipped { background: white; color: black; border: 2px solid var(--ios-green); }
         .memory-card.matched { visibility: hidden; }
 
-        /* 풍선 게임 */
-        #balloon-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #eef9ff; z-index: 1000; display: none; }
-        .balloon { position: absolute; width: 80px; height: 100px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; text-align: center; padding: 5px; font-size: 13px; }
+        .balloon { position: absolute; width: 80px; height: 100px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 13px; cursor: pointer; text-align: center; padding: 5px; box-sizing: border-box; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1); }
+        .balloon::after { content: ''; position: absolute; bottom: -10px; left: 50%; width: 2px; height: 20px; background: rgba(0,0,0,0.2); transform: translateX(-50%); }
+
+        .speak-btn { background: none; border: none; font-size: 20px; cursor: pointer; vertical-align: middle; }
     </style>
 </head>
 <body>
 
 <div id="game-box">
+    <div id="feedback-area"></div>
+
     <div id="start-screen" style="display: flex; flex-direction: column; height: 100%;">
         <h1>Voca Master 🚀</h1>
-        <input type="text" id="user-name" placeholder="사용자 이름 입력">
+        <input type="text" id="user-name" placeholder="여기에 이름을 입력해 주세요!">
         <div class="chapter-list" id="chapter-grid"></div>
     </div>
 
     <div id="result-screen" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
-        <h2 id="result-title" style="margin-bottom:10px;">Ranking</h2>
+        <h2 id="result-title" style="margin-bottom:10px;">🏆 Ranking (Top 15)</h2>
         <div class="rank-tabs">
-            <button class="rank-tab" id="tab-rankings">도전</button>
+            <button class="rank-tab active" id="tab-rankings">도전</button>
             <button class="rank-tab" id="tab-spelling">철자</button>
             <button class="rank-tab" id="tab-memory">메모리</button>
         </div>
-        <div style="flex: 1; overflow-y: auto; background: white; border-radius: 20px; padding: 10px;">
+        <div style="flex: 1; overflow-y: auto; background: white; border-radius: 20px; padding: 10px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);">
             <table style="width:100%; border-spacing:0;"><tbody id="rank-body"></tbody></table>
         </div>
         <button onclick="location.reload()" class="btn-main">홈으로</button>
@@ -122,6 +110,7 @@
         <div style="height: 250px; background: white; border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 20px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer;" onclick="toggleCard(this)">
             <div id="study-eng" style="font-size: 36px; font-weight: 800;">Word</div>
             <div id="study-kor" class="hidden" style="font-size: 24px; color: var(--ios-blue); margin-top:10px;">뜻</div>
+            <button class="speak-btn" onclick="event.stopPropagation(); window.speak(document.getElementById('study-eng').innerText)">🔊</button>
         </div>
         <div style="display:flex; gap:10px;">
             <button onclick="prevCard()" class="btn-main" style="background:#eee; color:black;">이전</button>
@@ -131,35 +120,37 @@
     </div>
 
     <div id="spelling-screen" class="hidden">
-        <h2 style="color: var(--ios-pink);">Spelling Bee</h2>
-        <div id="flower-pot" style="font-size: 30px; text-align:center; margin: 15px 0;">🌸🌸🌸🌸🌸🌸</div>
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: var(--ios-pink); margin:0;">Spelling Bee</h2>
+            <span id="spelling-progress" style="font-weight:bold; color:var(--ios-gray);">1 / 5</span>
+        </div>
+        <div id="flower-pot" style="font-size: 30px; text-align:center; margin: 10px 0;">🌸🌸🌸🌸🌸🌸</div>
         <p id="spelling-hint" style="text-align:center; font-weight:600; color:var(--ios-gray);"></p>
         <div id="spelling-display" style="font-size: 32px; font-weight: 800; text-align:center; letter-spacing: 4px; margin: 20px 0;">_ _ _</div>
         <div id="keyboard" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;"></div>
-        <button onclick="location.reload()" class="btn-main" style="background:none; color:var(--ios-gray);">그만하기</button>
     </div>
 
     <div id="memory-screen" class="hidden">
         <h2 style="color: var(--ios-green);">Memory Match</h2>
         <p id="memory-info" style="font-weight:600; color:var(--ios-gray); text-align:right;">남은 짝: 10</p>
         <div id="memory-grid" class="memory-grid"></div>
-        <button onclick="location.reload()" class="btn-main" style="background:none; color:var(--ios-gray);">그만하기</button>
     </div>
 
     <div id="quiz-screen" class="hidden">
         <div id="timer-bar" style="width:100%; height:6px; background:#eee; border-radius:3px; margin-bottom:15px; overflow:hidden;"><div id="timer-progress" style="width:100%; height:100%; background:var(--ios-pink); transition: linear;"></div></div>
         <div style="display:flex; justify-content: space-between; font-weight:bold; margin-bottom:20px;"><span id="timer-text">120초</span><span id="score-text">0점</span></div>
-        <div id="question" style="font-size:32px; font-weight:800; text-align:center; min-height:100px; display:flex; align-items:center; justify-content:center;">Ready?</div>
+        <div id="question" style="font-size:28px; font-weight:800; text-align:center; min-height:80px; display:flex; align-items:center; justify-content:center; padding: 0 10px;">Ready?</div>
         <div id="options-grid"></div>
     </div>
 </div>
 
-<div id="balloon-area">
-    <div style="padding: 20px; font-weight: bold; display: flex; justify-content: space-between;">
-        <span id="balloon-score">Score: 0</span>
-        <span id="balloon-target" style="background:white; padding:5px 15px; border-radius:20px; border:2px solid var(--ios-orange);">Target</span>
-        <button onclick="location.reload()" style="border:none; background:none; font-size:20px;">✖️</button>
+<div id="balloon-area" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #eef9ff; z-index: 1000; display: none;">
+    <div style="padding: 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+        <div id="balloon-life" style="font-size: 20px;">❤️ ❤️ ❤️</div>
+        <span id="balloon-target" style="background:white; padding:8px 20px; border-radius:20px; border:2px solid var(--ios-orange); font-size: 18px;">Target</span>
+        <span id="balloon-score" style="font-size: 18px; color: var(--ios-blue);">Score: 0</span>
     </div>
+    <button onclick="location.reload()" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); border:none; background:rgba(0,0,0,0.1); padding: 10px 20px; border-radius: 20px;">그만하기</button>
 </div>
 
 <script type="module">
@@ -167,12 +158,9 @@
     import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
 
     const firebaseConfig = {
-        apiKey: "AIzaSyC4BJHalXS0Ro4jIZq3qbncA_VY4Fs96bs",
-        authDomain: "english-word-studying.firebaseapp.com",
-        projectId: "english-word-studying",
-        storageBucket: "english-word-studying.firebasestorage.app",
-        messagingSenderId: "929690063833",
-        appId: "1:929690063833:web:70b91512f3b6b427697fc8"
+        apiKey: "AIzaSyC4BJHalXS0Ro4jIZq3qbncA_VY4Fs96bs", authDomain: "english-word-studying.firebaseapp.com",
+        projectId: "english-word-studying", storageBucket: "english-word-studying.firebasestorage.app",
+        messagingSenderId: "929690063833", appId: "1:929690063833:web:70b91512f3b6b427697fc8"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -180,158 +168,270 @@
 
     const allWords = [
         { eng: "a/an", kor: "하나의", ch: 1 }, { eng: "about", kor: "~에 대해", ch: 1 }, { eng: "above", kor: "~보다 위에", ch: 1 }, { eng: "able", kor: "~할 수 있는", ch: 1 }, { eng: "accident", kor: "사고, 우연", ch: 1 }, { eng: "act", kor: "행동하다", ch: 1 }, { eng: "add", kor: "더하다, 추가하다", ch: 1 }, { eng: "address", kor: "주소", ch: 1 }, { eng: "adult", kor: "성인, 어른", ch: 1 }, { eng: "adventure", kor: "모험", ch: 1 },
-        { eng: "advertise", kor: "광고하다", ch: 2 }, { eng: "advise", kor: "조언하다", ch: 2 }, { eng: "afraid", kor: "두려워하는, 겁내는", ch: 2 }, { eng: "after", kor: "~후에", ch: 2 }, { eng: "afternoon", kor: "오후", ch: 2 }, { eng: "again", kor: "다시", ch: 2 }, { eng: "against", kor: "~에 반대하여", ch: 2 }, { eng: "age", kor: "나이, 연령", ch: 2 }, { eng: "ago", kor: "~전에", ch: 2 }, { eng: "agree", kor: "동의하다", ch: 2 }
-        // (필요시 단어 데이터를 추가하세요)
+        { eng: "advertise", kor: "광고하다", ch: 2 }, { eng: "advise", kor: "조언하다", ch: 2 }, { eng: "afraid", kor: "두려워하는, 겁내는", ch: 2 }, { eng: "after", kor: "~후에", ch: 2 }, { eng: "afternoon", kor: "오후", ch: 2 }, { eng: "again", kor: "다시", ch: 2 }, { eng: "against", kor: "~에 반대하여", ch: 2 }, { eng: "age", kor: "나이, 연령", ch: 2 }, { eng: "ago", kor: "~전에", ch: 2 }, { eng: "agree", kor: "동의하다", ch: 2 },
+        { eng: "ahead", kor: "앞으로, 앞에", ch: 3 }, { eng: "aim", kor: "목적, 목표", ch: 3 }, { eng: "airline", kor: "항공사", ch: 3 }, { eng: "airplane", kor: "비행기", ch: 3 }, { eng: "airport", kor: "공항", ch: 3 }, { eng: "album", kor: "사진첩", ch: 3 }, { eng: "alive", kor: "살아있는", ch: 3 }, { eng: "all", kor: "모든", ch: 3 }, { eng: "allow", kor: "허락하다", ch: 3 }, { eng: "almost", kor: "거의", ch: 3 },
+        { eng: "alone", kor: "혼자, 외로운", ch: 4 }, { eng: "along", kor: "~을 따라", ch: 4 }, { eng: "aloud", kor: "소리내어, 큰소리로", ch: 4 }, { eng: "already", kor: "이미, 벌써", ch: 4 }, { eng: "alright", kor: "괜찮은, 좋아", ch: 4 }, { eng: "also", kor: "또한", ch: 4 }, { eng: "although", kor: "비록 ~이긴 하지만", ch: 4 }, { eng: "always", kor: "항상", ch: 4 }, { eng: "amaze", kor: "놀라게 하다", ch: 4 }, { eng: "amount", kor: "양, 액수", ch: 4 },
+        { eng: "amuse", kor: "즐겁게하다", ch: 5 }, { eng: "and", kor: "그리고", ch: 5 }, { eng: "angel", kor: "천사", ch: 5 }, { eng: "anger", kor: "화, 분노", ch: 5 }, { eng: "animal", kor: "동물", ch: 5 }, { eng: "anniversary", kor: "기념일", ch: 5 }, { eng: "another", kor: "또 다른", ch: 5 }, { eng: "answer", kor: "답하다", ch: 5 }, { eng: "any", kor: "어떤, 어느", ch: 5 }, { eng: "apartment", kor: "아파트", ch: 5 },
+        { eng: "apology", kor: "사과", ch: 6 }, { eng: "appear", kor: "나타나다", ch: 6 }, { eng: "apple", kor: "사과", ch: 6 }, { eng: "appreciate", kor: "고마워하다", ch: 6 }, { eng: "approach", kor: "다가가가다, 접근", ch: 6 }, { eng: "architect", kor: "건축가", ch: 6 }, { eng: "area", kor: "지역, 구역", ch: 6 }, { eng: "arm", kor: "팔", ch: 6 }, { eng: "around", kor: "주변에", ch: 6 }, { eng: "arrive", kor: "도착하다", ch: 6 },
+        { eng: "arrow", kor: "화살, 화살표", ch: 7 }, { eng: "art", kor: "미술, 예술", ch: 7 }, { eng: "article", kor: "기사, 글", ch: 7 }, { eng: "as", kor: "~처럼", ch: 7 }, { eng: "ask", kor: "묻다", ch: 7 }, { eng: "asleep", kor: "잠이 든", ch: 7 }, { eng: "at", kor: "~에서", ch: 7 }, { eng: "attack", kor: "공격하다", ch: 7 }, { eng: "attention", kor: "주의, 주목", ch: 7 }, { eng: "audience", kor: "청중, 시청자", ch: 7 },
+        { eng: "aunt", kor: "고모, 이모", ch: 8 }, { eng: "automatic", kor: "자동의", ch: 8 }, { eng: "autumn", kor: "가을", ch: 8 }, { eng: "avail", kor: "도움이 되다", ch: 8 }, { eng: "average", kor: "평균의", ch: 8 }, { eng: "awake", kor: "깨어있는", ch: 8 }, { eng: "award", kor: "상, 수여하다", ch: 8 }, { eng: "away", kor: "떨어져", ch: 8 }, { eng: "baby", kor: "아기", ch: 8 }, { eng: "back", kor: "뒤쪽, 등", ch: 8 },
+        { eng: "background", kor: "배경", ch: 9 }, { eng: "bad", kor: "나쁜", ch: 9 }, { eng: "badminton", kor: "배드민턴", ch: 9 }, { eng: "bag", kor: "가방", ch: 9 }, { eng: "bake", kor: "굽다", ch: 9 }, { eng: "balance", kor: "균형", ch: 9 }, { eng: "ball", kor: "공", ch: 9 }, { eng: "balloon", kor: "풍선", ch: 9 }, { eng: "banana", kor: "바나나", ch: 9 }, { eng: "bank", kor: "은행", ch: 9 },
+        { eng: "base", kor: "기초, 아랫부분", ch: 10 }, { eng: "baseball", kor: "야구", ch: 10 }, { eng: "basket", kor: "바구니", ch: 10 }, { eng: "basketball", kor: "농구", ch: 10 }, { eng: "bat", kor: "박쥐, 방망이", ch: 10 }, { eng: "bath", kor: "목욕, 욕조", ch: 10 }, { eng: "be", kor: "있다, 존재하다", ch: 10 }, { eng: "beach", kor: "해변", ch: 10 }, { eng: "bear", kor: "곰", ch: 10 }, { eng: "beauty", kor: "아름다움", ch: 10 },
+        { eng: "beautiful", kor: "아름다운", ch: 11 }, { eng: "because", kor: "~때문에", ch: 11 }, { eng: "become", kor: "~이 되다", ch: 11 }, { eng: "bed", kor: "침대", ch: 11 }, { eng: "bee", kor: "벌", ch: 11 }, { eng: "beef", kor: "소고기", ch: 11 }, { eng: "before", kor: "~전에", ch: 11 }, { eng: "beg", kor: "간청하다", ch: 11 }, { eng: "begin", kor: "시작하다", ch: 11 }, { eng: "behave", kor: "행동하다", ch: 11 },
+        { eng: "behind", kor: "~뒤에", ch: 12 }, { eng: "believe", kor: "믿다", ch: 12 }, { eng: "bell", kor: "종, 벨", ch: 12 }, { eng: "below", kor: "~아래에", ch: 12 }, { eng: "belt", kor: "벨트, 허리띠", ch: 12 }, { eng: "bench", kor: "벤치", ch: 12 }, { eng: "beside", kor: "~옆에", ch: 12 }, { eng: "between", kor: "~사이에", ch: 12 }, { eng: "beyond", kor: "~너머", ch: 12 }, { eng: "big", kor: "큰", ch: 12 },
+        { eng: "bike", kor: "자전거", ch: 13 }, { eng: "bill", kor: "청구서, 지폐", ch: 13 }, { eng: "billion", kor: "10억", ch: 13 }, { eng: "bird", kor: "새", ch: 13 }, { eng: "birth", kor: "탄생, 출생", ch: 13 }, { eng: "biscuit", kor: "비스킷", ch: 13 }, { eng: "bite", kor: "물다", ch: 13 }, { eng: "bitter", kor: "쓴 맛", ch: 13 }, { eng: "black", kor: "검은색", ch: 13 }, { eng: "blank", kor: "빈칸, 여백", ch: 13 },
+        { eng: "blanket", kor: "담요", ch: 14 }, { eng: "block", kor: "덩어리, 막다", ch: 14 }, { eng: "blood", kor: "피, 혈액", ch: 14 }, { eng: "blow", kor: "불다", ch: 14 }, { eng: "blue", kor: "파란색", ch: 14 }, { eng: "board", kor: "판자, 탑승하다", ch: 14 }, { eng: "boat", kor: "배, 보트", ch: 14 }, { eng: "body", kor: "몸, 신체", ch: 14 }, { eng: "bone", kor: "뼈", ch: 14 }, { eng: "book", kor: "책", ch: 14 },
+        { eng: "borrow", kor: "빌리다", ch: 15 }, { eng: "both", kor: "둘 다", ch: 15 }, { eng: "bottle", kor: "병", ch: 15 }, { eng: "bottom", kor: "아래, 바닥", ch: 15 }, { eng: "box", kor: "상자", ch: 15 }, { eng: "boy", kor: "남자아이", ch: 15 }, { eng: "brain", kor: "뇌", ch: 15 }, { eng: "branch", kor: "나뭇가지", ch: 15 }, { eng: "bread", kor: "빵", ch: 15 }, { eng: "break", kor: "깨지다, 고장나다", ch: 15 },
+        { eng: "breakfast", kor: "아침식사", ch: 16 }, { eng: "breath", kor: "숨, 호흡", ch: 16 }, { eng: "breathe", kor: "숨을 쉬다", ch: 16 }, { eng: "bridge", kor: "다리", ch: 16 }, { eng: "brief", kor: "짧은, 요약", ch: 16 }, { eng: "bright", kor: "밝은", ch: 16 }, { eng: "bring", kor: "가져오다", ch: 16 }, { eng: "brother", kor: "남동생, 형", ch: 16 }, { eng: "brown", kor: "갈색", ch: 16 }, { eng: "brush", kor: "솔, 붓", ch: 16 },
+        { eng: "build", kor: "짓다, 건설하다", ch: 17 }, { eng: "burn", kor: "타다, 화상", ch: 17 }, { eng: "bus", kor: "버스", ch: 17 }, { eng: "bush", kor: "덤불", ch: 17 }, { eng: "business", kor: "사업, 업무", ch: 17 }, { eng: "busy", kor: "바쁜", ch: 17 }, { eng: "but", kor: "그러나", ch: 17 }, { eng: "butter", kor: "버터", ch: 17 }, { eng: "button", kor: "단추", ch: 17 }, { eng: "buy", kor: "사다", ch: 17 },
+        { eng: "by", kor: "~옆에, ~에 의해", ch: 18 }, { eng: "cake", kor: "케이크", ch: 18 }, { eng: "calculate", kor: "계산하다", ch: 18 }, { eng: "calendar", kor: "달력", ch: 18 }, { eng: "call", kor: "부르다, 전화", ch: 18 }, { eng: "calm", kor: "침착한", ch: 18 }, { eng: "camera", kor: "카메라", ch: 18 }, { eng: "camp", kor: "야영하다", ch: 18 }, { eng: "campaign", kor: "캠페인", ch: 18 }, { eng: "cancel", kor: "취소하다", ch: 18 },
+        { eng: "candy", kor: "사탕", ch: 19 }, { eng: "cap", kor: "모자", ch: 19 }, { eng: "card", kor: "카드", ch: 19 }, { eng: "care", kor: "보살핌", ch: 19 }, { eng: "career", kor: "직업, 경력", ch: 19 }, { eng: "chicken", kor: "닭고기", ch: 19 }, { eng: "child", kor: "어린이", ch: 19 }, { eng: "cheap", kor: "값이 싼", ch: 19 }, { eng: "chocolate", kor: "초콜릿", ch: 19 }, { eng: "choice", kor: "선택", ch: 19 },
+        { eng: "choose", kor: "선택하다", ch: 20 }, { eng: "church", kor: "교회", ch: 20 }, { eng: "cinema", kor: "영화관", ch: 20 }, { eng: "circle", kor: "원, 동그라미", ch: 20 }, { eng: "city", kor: "도시", ch: 20 }, { eng: "class", kor: "수업, 학급", ch: 20 }, { eng: "classic", kor: "고전적인", ch: 20 }, { eng: "clean", kor: "깨끗한", ch: 20 }, { eng: "clear", kor: "분명한, 확실한", ch: 20 }, { eng: "clever", kor: "영리한", ch: 20 }
     ];
 
-    let selectedCh = 1;
-    let userName = "";
-    let currentChapterWords = [];
+    let selectedCh = 1; let userName = ""; let currentChapterWords = [];
 
-    // --- [ 공통: 순위 시스템 ] ---
-    window.viewRankingOnly = async (chNum, collName = "rankings") => {
+    // --- [ 🔈 TTS ] ---
+    window.speak = (text) => {
+        if (!text) return;
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'en-US'; msg.rate = 0.9;
+        window.speechSynthesis.cancel(); window.speechSynthesis.speak(msg);
+    };
+
+    function checkName() {
+        const input = document.getElementById('user-name');
+        userName = input.value.trim();
+        if (!userName) {
+            input.classList.add('shake');
+            setTimeout(() => input.classList.remove('shake'), 400);
+            alert("이름을 입력해 주세요!"); return false;
+        }
+        return true;
+    }
+
+    function showFeedback(txt, isWrong = true) {
+        const fb = document.getElementById('feedback-area');
+        fb.innerText = txt;
+        fb.className = isWrong ? 'feedback-wrong' : '';
+        fb.style.opacity = '1';
+        setTimeout(() => fb.style.opacity = '0', 1500);
+    }
+
+    // --- [ 🏆 랭킹 시스템 개선 (15위까지) ] ---
+    async function loadRanking(chNum, coll) {
+        const body = document.getElementById('rank-body');
+        body.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:var(--ios-gray);'>데이터 불러오는 중...</td></tr>";
+        
+        try {
+            // query limit을 15로 수정
+            const q = query(collection(db, coll), where("chapter", "==", chNum), orderBy("score", "desc"), limit(15));
+            const snap = await getDocs(q);
+            body.innerHTML = ""; let r = 1;
+            
+            if(snap.empty) { 
+                body.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px; color:#ccc;'>순위 데이터가 없습니다.</td></tr>"; 
+                return; 
+            }
+            
+            snap.forEach(doc => { 
+                const d = doc.data(); 
+                body.innerHTML += `
+                    <tr style="border-bottom:1px solid #f0f0f0;">
+                        <td style="padding:15px 10px; font-weight:800; color:${r<=3 ? 'var(--ios-orange)' : 'var(--ios-blue)'}; width:40px;">${r++}</td>
+                        <td style="font-weight:600; font-size:15px;">${d.name}</td>
+                        <td style="text-align:right; font-weight:700; color:var(--ios-gray);">${d.score}</td>
+                    </tr>`; 
+            });
+        } catch (e) { 
+            console.error(e);
+            body.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--ios-pink);'>데이터를 불러올 수 없습니다.</td></tr>";
+        }
+    }
+
+    window.viewRankingOnly = (chNum, coll = "rankings") => {
         selectedCh = chNum;
         document.querySelectorAll('#game-box > div').forEach(div => div.classList.add('hidden'));
         document.getElementById('result-screen').classList.remove('hidden');
-        document.querySelectorAll('.rank-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(`tab-${collName.split('_')[1] || 'rankings'}`).classList.add('active');
         
-        const body = document.getElementById('rank-body');
-        body.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:20px;'>Loading...</td></tr>";
-
-        const q = query(collection(db, collName), where("chapter", "==", chNum), orderBy("score", "desc"), limit(10));
-        const snap = await getDocs(q);
-        body.innerHTML = "";
-        let r = 1;
-        if(snap.empty) { body.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:#aaa;'>No Data</td></tr>"; return; }
-        snap.forEach(doc => {
-            const d = doc.data();
-            body.innerHTML += `<tr><td style="padding:12px; font-weight:800; color:var(--ios-blue);">${r++}</td><td style="font-weight:600;">${d.name}</td><td style="text-align:right; color:var(--ios-gray);">${d.score}</td></tr>`;
-        });
+        // 탭 UI 초기화 및 로드
+        updateRankTabUI(coll);
+        loadRanking(chNum, coll);
     };
 
-    document.getElementById('tab-rankings').onclick = () => window.viewRankingOnly(selectedCh, 'rankings');
-    document.getElementById('tab-spelling').onclick = () => window.viewRankingOnly(selectedCh, 'rankings_spelling');
-    document.getElementById('tab-memory').onclick = () => window.viewRankingOnly(selectedCh, 'rankings_memory');
+    function updateRankTabUI(activeColl) {
+        document.querySelectorAll('.rank-tab').forEach(btn => {
+            btn.classList.remove('active');
+            btn.onclick = () => {
+                const collMap = { 'tab-rankings': 'rankings', 'tab-spelling': 'rankings_spelling', 'tab-memory': 'rankings_memory' };
+                const targetColl = collMap[btn.id];
+                updateRankTabUI(targetColl);
+                loadRanking(selectedCh, targetColl);
+            };
+        });
+        
+        const activeId = activeColl === 'rankings' ? 'tab-rankings' : (activeColl === 'rankings_spelling' ? 'tab-spelling' : 'tab-memory');
+        document.getElementById(activeId).classList.add('active');
+    }
 
-    // --- [1. 카드 학습 ] ---
-    let studyIdx = 0;
-    window.startStudy = (chNum) => {
-        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum); studyIdx = 0;
+    // --- [ 📘 학습 ] ---
+    let sIdx = 0;
+    window.startStudy = (ch) => {
+        selectedCh = ch; currentChapterWords = allWords.filter(w => w.ch === ch); sIdx = 0;
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('study-screen').classList.remove('hidden');
-        showCard();
+        showC();
     };
-    window.toggleCard = (el) => { el.querySelector('#study-kor').classList.toggle('hidden'); };
-    window.showCard = () => {
-        document.getElementById('study-eng').innerText = currentChapterWords[studyIdx].eng;
-        document.getElementById('study-kor').innerText = currentChapterWords[studyIdx].kor;
+    window.toggleCard = (el) => el.querySelector('#study-kor').classList.toggle('hidden');
+    function showC() {
+        const w = currentChapterWords[sIdx];
+        document.getElementById('study-eng').innerText = w.eng;
+        document.getElementById('study-kor').innerText = w.kor;
         document.getElementById('study-kor').classList.add('hidden');
-        document.getElementById('card-counter').innerText = `${studyIdx+1} / ${currentChapterWords.length}`;
-    };
-    window.nextCard = () => { if(studyIdx < currentChapterWords.length-1) { studyIdx++; showCard(); } };
-    window.prevCard = () => { if(studyIdx > 0) { studyIdx--; showCard(); } };
+        document.getElementById('card-counter').innerText = `${sIdx+1} / ${currentChapterWords.length}`;
+        window.speak(w.eng);
+    }
+    window.nextCard = () => { if(sIdx < currentChapterWords.length-1) { sIdx++; showC(); } };
+    window.prevCard = () => { if(sIdx > 0) { sIdx--; showC(); } };
 
-    // --- [2. 철자 게임 ] ---
-    let targetWord = "", guessed = [], wrong = 0, solved = 0, spellingScore = 0;
-    window.startSpelling = (chNum) => {
-        userName = document.getElementById('user-name').value.trim() || "Guest";
-        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
-        solved = 0; spellingScore = 0;
+    // --- [ 🐝 철자 게임 ] ---
+    let tWord = "", guessed = [], wrong = 0, solved = 0, sScore = 0;
+    window.startSpelling = (ch) => {
+        if(!checkName()) return;
+        selectedCh = ch; currentChapterWords = allWords.filter(w => w.ch === ch);
+        solved = 0; sScore = 0;
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('spelling-screen').classList.remove('hidden');
-        nextSpelling();
+        nextS();
     };
-    function nextSpelling() {
-        if(solved >= 5) { saveScore("rankings_spelling", spellingScore); return; }
+    function nextS() {
+        if(solved >= 5) { saveScore("rankings_spelling", sScore); return; }
         const item = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
-        targetWord = item.eng.toLowerCase().replace(/[^a-z]/g, "");
+        tWord = item.eng.toLowerCase().replace(/[^a-z]/g, "");
         guessed = []; wrong = 0;
+        document.getElementById('spelling-progress').innerText = `${solved + 1} / 5`;
         document.getElementById('spelling-hint').innerText = `뜻: ${item.kor}`;
-        updateSpellingUI(); renderKeyboard();
+        updateSUI(); renderK();
     }
-    function updateSpellingUI() {
+    function updateSUI() {
         let disp = ""; let win = true;
-        for(let l of targetWord) { if(guessed.includes(l)) disp += l + " "; else { disp += "_ "; win = false; } }
+        for(let l of tWord) { if(guessed.includes(l)) disp += l + " "; else { disp += "_ "; win = false; } }
         document.getElementById('spelling-display').innerText = disp;
         document.getElementById('flower-pot').innerText = "🌸".repeat(6-wrong) + "🥀".repeat(wrong);
-        if(win) { spellingScore += (100 - wrong*10); solved++; setTimeout(nextSpelling, 600); }
-        else if(wrong >= 6) { solved++; setTimeout(nextSpelling, 600); }
+        if(win) { sScore += (100 - wrong*10); solved++; setTimeout(nextS, 800); }
+        else if(wrong >= 6) { showFeedback(`정답: ${tWord.toUpperCase()}`); solved++; setTimeout(nextS, 1500); }
     }
-    function renderKeyboard() {
+    function renderK() {
         const kb = document.getElementById('keyboard'); kb.innerHTML = "";
         "abcdefghijklmnopqrstuvwxyz".split("").forEach(l => {
-            const b = document.createElement('button'); b.innerText = l; b.style = "padding:10px 0; background:white; border-radius:8px; border:none; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:pointer;";
-            b.onclick = () => { b.disabled = true; b.style.opacity = 0.3; if(targetWord.includes(l)) guessed.push(l); else wrong++; updateSpellingUI(); };
+            const b = document.createElement('button'); b.innerText = l; b.className = 'mode-btn'; b.style="background:white; box-shadow:0 2px 4px rgba(0,0,0,0.1); font-size:16px; padding:12px 0;";
+            b.onclick = () => { b.disabled = true; b.style.opacity = 0.3; if(tWord.includes(l)) { guessed.push(l); } else wrong++; updateSUI(); };
             kb.appendChild(b);
         });
     }
 
-    // --- [3. 메모리 게임 ] ---
-    window.startMemory = (chNum) => {
-        userName = document.getElementById('user-name').value.trim() || "Guest";
-        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
+    // --- [ 🧩 메모리 ] ---
+    window.startMemory = (ch) => {
+        if(!checkName()) return;
+        selectedCh = ch; currentChapterWords = allWords.filter(w => w.ch === ch);
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('memory-screen').classList.remove('hidden');
-        let cards = []; currentChapterWords.forEach(w => { cards.push({t:w.eng, id:w.eng}); cards.push({t:w.kor, id:w.eng}); });
+        let cards = []; currentChapterWords.forEach(w => { cards.push({t:w.eng, id:w.eng, type:'eng'}); cards.push({t:w.kor, id:w.eng, type:'kor'}); });
         cards.sort(() => Math.random()-0.5);
         const grid = document.getElementById('memory-grid'); grid.innerHTML = "";
         let first = null, lock = false, matches = 0;
+        document.getElementById('memory-info').innerText = `남은 짝: 10`;
         cards.forEach(c => {
             const el = document.createElement('div'); el.className = 'memory-card'; el.innerText = "?";
             el.onclick = () => {
-                if(lock || el.classList.contains('matched') || el === first) return;
+                if(lock || el.classList.contains('matched') || el === (first?first.el:null)) return;
                 el.innerText = c.t; el.classList.add('flipped');
-                if(!first) { first = el; return; }
+                if(!first) { first = {el, c}; return; }
                 lock = true;
-                const firstData = cards.find(x => x.t === first.innerText);
-                if(firstData.id === c.id && first.innerText !== el.innerText) {
-                    setTimeout(() => { first.classList.add('matched'); el.classList.add('matched'); matches++; first=null; lock=false; if(matches===10) saveScore("rankings_memory", 1000); }, 500);
+                if(first.c.id === c.id && first.c.type !== c.type) {
+                    setTimeout(() => { el.classList.add('matched'); first.el.classList.add('matched'); matches++; document.getElementById('memory-info').innerText = `남은 짝: ${10-matches}`; first=null; lock=false; if(matches===10) saveScore("rankings_memory", 1000); }, 500);
                 } else {
-                    setTimeout(() => { first.innerText="?"; el.innerText="?"; first.classList.remove('flipped'); el.classList.remove('flipped'); first=null; lock=false; }, 800);
+                    setTimeout(() => { first.el.innerText="?"; el.innerText="?"; first.el.classList.remove('flipped'); el.classList.remove('flipped'); first=null; lock=false; }, 800);
                 }
             };
             grid.appendChild(el);
         });
     };
 
-    // --- [4. 풍선 게임 ] ---
-    window.startBalloon = (chNum) => {
-        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
-        document.getElementById('balloon-area').style.display = 'block';
-        let bScore = 0, bTarget = "";
-        const setTarget = () => { bTarget = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)]; document.getElementById('balloon-target').innerText = bTarget.kor; };
-        setTarget();
-        const gameInt = setInterval(() => {
-            const b = document.createElement('div'); const w = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
-            b.className = 'balloon'; b.innerText = w.eng; b.style.left = Math.random()*80+'%'; b.style.top = '100%';
-            b.style.backgroundColor = `hsl(${Math.random()*360}, 70%, 60%)`;
-            b.onclick = () => { if(w.eng === bTarget.eng) { bScore += 10; setTarget(); } b.remove(); document.getElementById('balloon-score').innerText = "Score: " + bScore; };
-            document.getElementById('balloon-area').appendChild(b);
-            let pos = 100; const move = setInterval(() => { pos -= 0.5; b.style.top = pos + '%'; if(pos < -10) { clearInterval(move); b.remove(); } }, 20);
-        }, 1500);
-    };
-
-    // --- [5. 2분 도전 ] ---
-    window.startSurvival = (chNum) => {
-        userName = document.getElementById('user-name').value.trim() || "Guest";
-        selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
+    // --- [ ⏱️ 2분 도전 ] ---
+    window.startSurvival = (ch) => {
+        if(!checkName()) return;
+        selectedCh = ch; currentChapterWords = allWords.filter(w => w.ch === ch);
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
-        let timeLeft = 120, qScore = 0;
+        let timeLeft = 120, qScore = 0, isLock = false;
         const timer = setInterval(() => { timeLeft--; document.getElementById('timer-text').innerText = timeLeft+"s"; document.getElementById('timer-progress').style.width = (timeLeft/120*100) + "%"; if(timeLeft<=0) { clearInterval(timer); saveScore("rankings", qScore); } }, 1000);
+        
         const nextQ = () => {
+            isLock = false;
             const item = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
-            document.getElementById('question').innerText = item.eng;
-            let opts = [item.kor]; while(opts.length<4) { let r = allWords[Math.floor(Math.random()*allWords.length)].kor; if(!opts.includes(r)) opts.push(r); }
+            const isEngQuestion = Math.random() > 0.5;
+            document.getElementById('question').innerText = isEngQuestion ? item.eng : item.kor;
+            const correctAns = isEngQuestion ? item.kor : item.eng;
+            let opts = [correctAns];
+            while(opts.length<4) { 
+                let rItem = allWords[Math.floor(Math.random()*allWords.length)];
+                let rVal = isEngQuestion ? rItem.kor : rItem.eng;
+                if(!opts.includes(rVal)) opts.push(rVal); 
+            }
             const oGrid = document.getElementById('options-grid'); oGrid.innerHTML = "";
             opts.sort(()=>Math.random()-0.5).forEach(o => {
                 const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = o;
-                b.onclick = () => { if(o === item.kor) qScore += 10; else qScore -= 5; document.getElementById('score-text').innerText = qScore+"pt"; nextQ(); };
+                b.onclick = () => {
+                    if(isLock) return; isLock = true;
+                    if(o === correctAns) { qScore += 10; nextQ(); } 
+                    else { qScore -= 5; b.classList.add('opt-wrong'); showFeedback(`정답: ${correctAns}`); setTimeout(nextQ, 1000); }
+                    document.getElementById('score-text').innerText = qScore+"pt";
+                };
                 oGrid.appendChild(b);
             });
         };
         nextQ();
+    };
+
+    // --- [ 🎈 풍선 게임 ] ---
+    window.startBalloon = (ch) => {
+        if(!checkName()) return;
+        selectedCh = ch; currentChapterWords = allWords.filter(w => w.ch === ch);
+        document.getElementById('balloon-area').style.display = 'block';
+        let bScore = 0, bLives = 3, bTarget = "";
+        const updateLives = () => {
+            document.getElementById('balloon-life').innerText = "❤️ ".repeat(bLives) + "🖤 ".repeat(3-bLives);
+            if(bLives <= 0) { alert(`게임 오버! 점수: ${bScore}`); location.reload(); }
+        };
+        const setT = () => { 
+            bTarget = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)]; 
+            document.getElementById('balloon-target').innerText = bTarget.kor; 
+        };
+        setT();
+        const bInt = setInterval(() => {
+            if(document.getElementById('balloon-area').style.display === 'none') { clearInterval(bInt); return; }
+            const b = document.createElement('div'); 
+            const w = currentChapterWords[Math.floor(Math.random()*currentChapterWords.length)];
+            b.className = 'balloon'; b.innerText = w.eng; b.style.left = (10 + Math.random()*70)+'%'; b.style.top = '100%';
+            b.style.backgroundColor = `hsl(${Math.random()*360}, 70%, 60%)`;
+            b.onclick = () => { 
+                if(w.eng === bTarget.eng) { bScore += 10; setT(); } 
+                else { bLives--; updateLives(); }
+                b.remove(); 
+                document.getElementById('balloon-score').innerText = "Score: " + bScore; 
+            };
+            document.getElementById('balloon-area').appendChild(b);
+            let pos = 100;
+            const move = setInterval(() => { 
+                pos -= 0.35; b.style.top = pos + '%'; 
+                if(pos < -15) { 
+                    clearInterval(move); 
+                    if(w.eng === bTarget.eng) { bLives--; updateLives(); setT(); }
+                    b.remove(); 
+                } 
+            }, 30);
+        }, 800);
     };
 
     async function saveScore(coll, score) {
@@ -339,21 +439,17 @@
         window.viewRankingOnly(selectedCh, coll);
     }
 
-    // 초기 화면 단원 생성
     document.addEventListener('DOMContentLoaded', () => {
         const grid = document.getElementById('chapter-grid');
         for(let i=1; i<=20; i++) {
             const row = document.createElement('div'); row.className = 'chapter-row';
-            row.innerHTML = `
-                <div class="chapter-info">Unit ${i}</div>
-                <div class="btn-group">
-                    <button onclick="window.startStudy(${i})" class="mode-btn btn-study">학습</button>
-                    <button onclick="window.startMemory(${i})" class="mode-btn btn-memory">메모리</button>
-                    <button onclick="window.startBalloon(${i})" class="mode-btn btn-balloon">풍선</button>
-                    <button onclick="window.startSpelling(${i})" class="mode-btn btn-spelling">철자</button>
-                    <button onclick="window.startSurvival(${i})" class="mode-btn btn-survival">도전</button>
-                    <button onclick="window.viewRankingOnly(${i}, 'rankings')" class="mode-btn btn-rank">🏆</button>
-                </div>`;
+            row.innerHTML = `<div class="chapter-info">Unit ${i}</div><div class="btn-group">
+                <button onclick="window.startStudy(${i})" class="mode-btn btn-study">학습</button>
+                <button onclick="window.startMemory(${i})" class="mode-btn btn-memory">메모리</button>
+                <button onclick="window.startBalloon(${i})" class="mode-btn btn-balloon">풍선</button>
+                <button onclick="window.startSpelling(${i})" class="mode-btn btn-spelling">철자</button>
+                <button onclick="window.startSurvival(${i})" class="mode-btn btn-survival">도전</button>
+                <button onclick="window.viewRankingOnly(${i})" class="mode-btn btn-rank">🏆</button></div>`;
             grid.appendChild(row);
         }
     });
