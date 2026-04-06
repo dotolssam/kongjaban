@@ -71,6 +71,9 @@
     <div id="study-screen" class="hidden">
         <h2 style="color: var(--study);">단어 카드 학습</h2>
         <div id="card-counter">1 / 10</div>
+
+//아래 문장 추가했음
+        <button onclick="window.speakWord()" style="background:none; border:none; font-size:2rem; cursor:pointer; margin-bottom:10px;">🔊</button>
         <div class="flash-card" onclick="this.querySelector('.card-inner').classList.toggle('is-flipped')">
             <div class="card-inner">
                 <div class="card-face card-front" id="study-eng">Word</div>
@@ -221,12 +224,44 @@
             document.getElementById('study-eng').innerText = word.eng; document.getElementById('study-kor').innerText = word.kor;
             document.getElementById('card-counter').innerText = `${studyIdx + 1} / ${currentChapterWords.length}`;
             document.querySelector('.card-inner').classList.remove('is-flipped');
+//아랫줄 추가했음
+window.speakWord();
         };
         window.nextCard = () => { if(studyIdx < currentChapterWords.length - 1) { studyIdx++; window.updateStudyCard(); } };
         window.prevCard = () => { if(studyIdx > 0) { studyIdx--; window.updateStudyCard(); } };
         window.updateStudyCard();
     };
+// 발음 읽어주기 함수 추가했음
+// 발음 읽어주기 함수 (특수문자 처리 포함)
+window.speakWord = () => {
+    let engText = document.getElementById('study-eng').innerText;
+    const cleanText = engText.replace(/\//g, ", "); // "a, an"으로 변환
 
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    
+    // 현재 브라우저에서 사용 가능한 모든 목소리 목록을 가져옵니다.
+    const voices = window.speechSynthesis.getVoices();
+    
+    // 영어(en)이면서 여성(female/Zira/Google/Samantha) 느낌의 목소리를 찾습니다.
+    const femaleVoice = voices.find(voice => 
+        voice.lang.includes('en') && 
+        (voice.name.includes('Female') || voice.name.includes('Zira') || voice.name.includes('Google US English') || voice.name.includes('Samantha'))
+    );
+
+    // 찾은 여성 목소리가 있다면 적용하고, 없으면 기본 영어 목 voice를 사용합니다.
+    if (femaleVoice) {
+        utterance.voice = femaleVoice;
+    }
+
+    utterance.lang = 'en-US';
+    utterance.rate = 0.8; // 속도 (0.1 ~ 10)
+    utterance.pitch = 1.1; // 음높이를 살짝 올리면 더 여성스러운 톤이 됩니다. (0 ~ 2)
+    
+    window.speechSynthesis.speak(utterance);
+};
+
+// 브라우저가 목소리 목록을 로드하는 데 시간이 걸릴 수 있어 미리 호출해둡니다.
+window.speechSynthesis.getVoices();
     window.startMemory = (chNum) => {
         selectedCh = chNum; currentChapterWords = allWords.filter(w => w.ch === chNum);
         let cards = []; currentChapterWords.forEach(w => { cards.push({ t: w.eng, id: w.eng }); cards.push({ t: w.kor, id: w.eng }); });
